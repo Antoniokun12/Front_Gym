@@ -1,0 +1,305 @@
+<template>
+  <div>
+    <div class="q-pa-md text-center">
+      <div class="text-h2">Ingresos</div>
+      <q-btn
+        label="Agregar Ingreso"
+        color="primary"
+        @click="showForm = true"
+        class="q-my-md"
+      />
+      <q-btn-dropdown color="primary" icon="visibility" label="Filtrar" style="margin-left: 16px;">
+        <q-list>
+          <q-item clickable v-ripple @click="listarIngresos">
+            <q-item-section>Listar Todos</q-item-section>
+          </q-item>
+          <q-item clickable v-ripple @click="listarIngresosActivos">
+            <q-item-section>Listar Activos</q-item-section>
+          </q-item>
+          <q-item clickable v-ripple @click="listarIngresosInactivos">
+            <q-item-section>Listar Inactivos</q-item-section>
+          </q-item>
+        </q-list>
+      </q-btn-dropdown>
+    </div>
+    <div class="q-pa-md">
+      <q-card>
+        <q-card-section>
+          <q-table
+            :rows="rows"
+            :columns="columns"
+            row-key="_id"
+            flat
+            bordered
+            square
+          >
+            <template v-slot:body-cell-opciones="props">
+              <q-td :props="props">
+                <q-btn
+                  flat
+                  dense
+                  round
+                  icon="edit"
+                  @click="editarIngreso(props.row)"
+                />
+                <q-btn
+                  flat
+                  dense
+                  round
+                  icon="toggle_on"
+                  @click="activarIngreso(props.row)"
+                  v-if="props.row.estado === 0"
+                />
+                <q-btn
+                  flat
+                  dense
+                  round
+                  icon="toggle_off"
+                  @click="desactivarIngreso(props.row)"
+                  v-else
+                />
+              </q-td>
+            </template>
+            <template v-slot:body-cell-estado="props">
+              <q-td :props="props">
+                <q-chip :color="props.row.estado === 1 ? 'green' : 'red'" dark>
+                  {{ props.row.estado === 1 ? "Activo" : "Inactivo" }}
+                </q-chip>
+              </q-td>
+            </template>
+          </q-table>
+        </q-card-section>
+      </q-card>
+    </div>
+    <div class="q-pa-md">
+      <q-dialog v-model="showForm">
+        <q-card>
+          <q-card-section>
+            <q-form @submit.prevent="agregarOEditarIngreso">
+              <q-select
+                v-model="id_cliente"
+                label="Cliente"
+                :options="clientesOptions"
+                emit-value
+                map-options
+                option-value="value"
+                option-label="label"
+                required
+              />
+              <q-select
+                v-model="id_sede"
+                label="Sede"
+                :options="sedesOptions"
+                emit-value
+                map-options
+                option-value="value"
+                option-label="label"
+                required
+              />
+              <q-btn
+                label="Cancelar"
+                color="negative"
+                @click="cancelarAgregarIngreso"
+                class="q-mr-sm"
+              />
+              <q-btn
+                type="submit"
+                label="Guardar"
+                color="primary"
+              />
+            </q-form>
+          </q-card-section>
+        </q-card>
+      </q-dialog>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ref, watch } from "vue";
+import { useIngresoStore } from "../stores/ingresos.js";
+import { useClienteStore } from "../stores/clientes.js";
+import { useSedeStore } from "../stores/sedes.js";
+
+const useIngresos = useIngresoStore();
+const useClientes = useClienteStore();
+const useSedes = useSedeStore();
+const showForm = ref(false);
+const id_cliente = ref("");
+const id_sede = ref("");
+const fecha = ref("");
+const estado = ref("");
+const ingresoId = ref(null);
+
+const clientesOptions = ref([]);
+const sedesOptions = ref([]);
+const clientesMap = ref({});
+const sedesMap = ref({});
+const rows = ref([]);
+const columns = ref([
+  { name: "cliente", label: "Cliente", align: "center", field: "cliente" },
+  { name: "sede", label: "Sede", align: "center", field: "sede" },
+  { name: "fecha", label: "Fecha", align: "center", field: "fecha" },
+  { name: "estado", label: "Estado", align: "center", field: "estado" },
+  { name: "opciones", label: "Opciones", align: "center", field: "opciones" },
+]);
+
+async function listarIngresos() {
+  try {
+    const r = await useIngresos.getIngresos();
+    rows.value = r.ingresos.map((ingreso) => ({
+      ...ingreso,
+      cliente: clientesMap.value[ingreso.id_cliente] || "Desconocido",
+      sede: sedesMap.value[ingreso.id_sede] || "Desconocido",
+    }));
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+async function listarIngresosActivos() {
+  try {
+    const r = await useIngresos.getIngresosActivos();
+    rows.value = r.ingresosActivos.map((ingreso) => ({
+      ...ingreso,
+      cliente: clientesMap.value[ingreso.id_cliente] || "Desconocido",
+      sede: sedesMap.value[ingreso.id_sede] || "Desconocido",
+    })) || [];
+  } catch (error) {
+    console.error(error);
+    rows.value = [];
+  }
+}
+
+async function listarIngresosInactivos() {
+  try {
+    const r = await useIngresos.getIngresosInactivos();
+    rows.value = r.ingresosInactivos.map((ingreso) => ({
+      ...ingreso,
+      cliente: clientesMap.value[ingreso.id_cliente] || "Desconocido",
+      sede: sedesMap.value[ingreso.id_sede] || "Desconocido",
+    })) || [];
+  } catch (error) {
+    console.error(error);
+    rows.value = [];
+  }
+}
+
+async function agregarOEditarIngreso() {
+  try {
+    // Log para verificar id_sede e id_cliente
+    console.log(`ID de Cliente seleccionado: ${id_cliente.value}`);
+    console.log(`ID de Sede seleccionado: ${id_sede.value}`);
+
+    // Validar que id_cliente e id_sede sean ObjectId válidos
+    if (!/^[0-9a-fA-F]{24}$/.test(id_cliente.value)) {
+      throw new Error("ID de Cliente inválido");
+    }
+    if (!/^[0-9a-fA-F]{24}$/.test(id_sede.value)) {
+      throw new Error("ID de Sede inválido");
+    }
+
+    const data = {
+      id_cliente: id_cliente.value,
+      id_sede: id_sede.value,
+    };
+    if (ingresoId.value) {
+      await useIngresos.putIngresos(ingresoId.value, data);
+    } else {
+      await useIngresos.postIngresos(data);
+    }
+    listarIngresos();
+    showForm.value = false;
+  } catch (error) {
+    console.error("Error al agregar o editar ingreso:", error);
+    if (error.response && error.response.data) {
+      console.error("Detalles del error:", error.response.data);
+    }
+  }
+}
+
+function cancelarAgregarIngreso() {
+  showForm.value = false;
+}
+
+function editarIngreso(ingreso) {
+  id_cliente.value = ingreso.id_cliente;
+  id_sede.value = ingreso.id_sede;
+  fecha.value = ingreso.fecha.split("T")[0];
+  estado.value = ingreso.estado === 1 ? "Activo" : "Inactivo";
+  ingresoId.value = ingreso._id;
+  showForm.value = true;
+}
+
+async function activarIngreso(ingreso) {
+  try {
+    await useIngresos.toggleEstadoIngresos(ingreso._id, true);
+    listarIngresos();
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+async function desactivarIngreso(ingreso) {
+  try {
+    await useIngresos.toggleEstadoIngresos(ingreso._id, false);
+    listarIngresos();
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+async function obtenerClientesYSedes() {
+  try {
+    const resClientes = await useClientes.getClientes();
+    clientesOptions.value = resClientes.clientes.map((cliente) => ({
+      label: cliente.nombre,
+      value: cliente._id,
+    }));
+    clientesMap.value = resClientes.clientes.reduce((acc, cliente) => {
+      acc[cliente._id] = cliente.nombre;
+      return acc;
+    }, {});
+
+    const resSedes = await useSedes.getSedes();
+    sedesOptions.value = resSedes.sede.map((sede) => ({
+      label: sede.nombre,
+      value: sede._id,
+    }));
+    sedesMap.value = resSedes.sede.reduce((acc, sede) => {
+      acc[sede._id] = sede.nombre;
+      return acc;
+    }, {});
+
+    listarIngresos();
+  } catch (error) {
+    console.error(error);
+  }
+}
+obtenerClientesYSedes();
+
+watch(showForm, (newValue) => {
+  if (!newValue) {
+    id_cliente.value = "";
+    id_sede.value = "";
+    fecha.value = "";
+    estado.value = "";
+    ingresoId.value = null;
+  }
+});
+</script>
+
+<style>
+.q-card-section {
+  padding: 20px;
+}
+
+.q-btn {
+  margin-right: 5px;
+}
+
+.text-center {
+  text-align: center;
+}
+</style>
+
