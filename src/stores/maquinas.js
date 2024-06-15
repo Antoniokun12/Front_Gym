@@ -43,6 +43,16 @@ export const useMaquinaStore = defineStore("maquina", () => {
             return error
         }
     }
+
+    let getMaquinaByID = async (id) => {
+        try {
+            let res = await axios.get(`http://localhost:2500/api/maquinas/${id}`);
+            return res.data.maquina;
+        } catch (error) {
+            console.log(error);
+            return error;
+        }
+    }
     
     let postMaquina = async (r) => {
         try {
@@ -80,7 +90,7 @@ export const useMaquinaStore = defineStore("maquina", () => {
         }
     }
     return {
-        getMaquina, getMaquinasActivos, getMaquinasInactivos, postMaquina, putMaquina, toggleEstadoMaquina
+        getMaquina, getMaquinasActivos, getMaquinasInactivos, getMaquinaByID, postMaquina, putMaquina, toggleEstadoMaquina
     }
 },
 {

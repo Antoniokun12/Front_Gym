@@ -44,6 +44,16 @@ export const useInventarioStore = defineStore("inventario", () => {
         }
     }
 
+    let getInventarioByID = async (id) => {
+        try {
+            let res = await axios.get(`http://localhost:2500/api/inventario/${id}`);
+            return res.data.inventario;
+        } catch (error) {
+            console.log(error);
+            return error;
+        }
+    }
+
 
     let postInventario = async (inventario) => {
         try {
@@ -82,7 +92,7 @@ export const useInventarioStore = defineStore("inventario", () => {
     }
 
     return {
-        getInventario, getInventarioActivos, getInventarioInactivos, postInventario, putInventario, toggleEstadoInventario
+        getInventario, getInventarioActivos, getInventarioInactivos, getInventarioByID, postInventario, putInventario, toggleEstadoInventario
     }
 },
 {

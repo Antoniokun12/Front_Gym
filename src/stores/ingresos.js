@@ -44,6 +44,17 @@ export const useIngresoStore = defineStore("ingreso", () => {
         }
     }
 
+    let getIngresosByID = async (id) => {
+        try {
+            let res = await axios.get(`http://localhost:2500/api/ingresos/ingresos/${id}`);
+            return res.data.ingresos;
+        } catch (error) {
+            console.log(error);
+            return error;
+        }
+    }
+
+
     let postIngresos = async (ingreso) => {
         try {
             let req = await axios.post("http://localhost:2500/api/ingresos", ingreso);
@@ -81,7 +92,7 @@ export const useIngresoStore = defineStore("ingreso", () => {
     }
 
     return {
-        getIngresos, getIngresosActivos, getIngresosInactivos, postIngresos, putIngresos, toggleEstadoIngresos
+        getIngresos, getIngresosActivos, getIngresosInactivos, getIngresosByID, postIngresos, putIngresos, toggleEstadoIngresos
     }
 },
 {

@@ -8,7 +8,12 @@
         @click="showForm = true"
         class="q-my-md"
       />
-      <q-btn-dropdown color="primary" icon="visibility" label="Filtrar" style="margin-left: 16px;">
+      <q-btn-dropdown
+        color="primary"
+        icon="visibility"
+        label="Filtrar"
+        style="margin-left: 16px"
+      >
         <q-list>
           <q-item clickable v-ripple @click="listarClientes">
             <q-item-section>Listar Todos</q-item-section>
@@ -29,7 +34,7 @@
         map-options
         option-value="value"
         option-label="label"
-        style="margin-left: 16px; max-width: 200px;"
+        style="margin-left: 16px; max-width: 200px"
         @update:model-value="obtenerClientePorID"
       />
     </div>
@@ -43,6 +48,7 @@
             flat
             bordered
             square
+            no-data-label=""
           >
             <template v-slot:body-cell-opciones="props">
               <q-td :props="props">
@@ -92,6 +98,16 @@
                 </q-chip>
               </q-td>
             </template>
+            <template v-slot:no-data>
+              <div class="q-pa-md text-center">
+                <q-icon
+                  name="sentiment_dissatisfied"
+                  size="lg"
+                  class="q-mr-sm"
+                />
+                <div class="text-h6">No hay clientes disponibles</div>
+              </div>
+            </template>
           </q-table>
         </q-card-section>
       </q-card>
@@ -119,6 +135,7 @@
             flat
             bordered
             square
+            no-data-label="no hay seguimientos disponibles"
           />
         </q-card-section>
       </q-card>
@@ -282,7 +299,6 @@ const clienteId = ref(null); // Para almacenar el ID del cliente en edición
 
 const clienteSeleccionado = ref(null); // Lista de planes disponibles
 
-
 const rows = ref([]);
 const columns = ref([
   { name: "nombre", label: "Nombre Cliente", align: "center", field: "nombre" },
@@ -326,7 +342,12 @@ const columns = ref([
     field: "observaciones_limitaciones",
   },
   { name: "estado", label: "Estado", align: "center", field: "estado" },
-  { name: "id_plan", label: "Plan", align: "center", field: "id_plan" },
+  {
+    name: "id_plan",
+    label: "Plan",
+    align: "center",
+    field: (row) => row.id_plan.descripcion,
+  },
   { name: "opciones", label: "Opciones", align: "center", field: "opciones" },
 ]);
 
@@ -356,7 +377,6 @@ const seguimientoColumns = ref([
 ]);
 
 const ClieOptions = ref([]);
-
 
 async function listarClientes() {
   try {
@@ -391,7 +411,6 @@ async function listarClientesInactivos() {
     rows.value = [];
   }
 }
-
 
 async function agregarOEditarCliente() {
   try {
@@ -560,6 +579,13 @@ listarClientes(); // Listar clientes al cargar el componente
   position: absolute;
   top: 10px;
   right: 10px;
+}
+
+.q-icon {
+  font-size: 3rem;
+}
+.text-h6 {
+  font-size: 1.5rem;
 }
 </style>
 

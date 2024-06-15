@@ -21,6 +21,17 @@
           </q-item>
         </q-list>
       </q-btn-dropdown>
+      <q-select
+        v-model="selectedIngresosId"
+        label="Seleccionar Cliente"
+        :options="clientesOptions"
+        emit-value
+        map-options
+        option-value="value"
+        option-label="label"
+        style="margin-left: 16px; max-width: 200px"
+        @update:model-value="obtenerIngresosPorID"
+      />
     </div>
     <div class="q-pa-md">
       <q-card>
@@ -32,6 +43,7 @@
             flat
             bordered
             square
+            no-data-label=""
           >
             <template v-slot:body-cell-opciones="props">
               <q-td :props="props">
@@ -66,6 +78,12 @@
                   {{ props.row.estado === 1 ? "Activo" : "Inactivo" }}
                 </q-chip>
               </q-td>
+            </template>
+            <template v-slot:no-data>
+              <div class="q-pa-md text-center">
+                <q-icon name="sentiment_dissatisfied" size="lg" class="q-mr-sm" />
+                <div class="text-h6">No hay ingresos disponibles</div>
+              </div>
             </template>
           </q-table>
         </q-card-section>
@@ -130,6 +148,7 @@ const id_sede = ref("");
 const fecha = ref("");
 const estado = ref("");
 const ingresoId = ref(null);
+const selectedIngresosId = ref("");
 
 const clientesOptions = ref([]);
 const sedesOptions = ref([]);
@@ -137,8 +156,8 @@ const clientesMap = ref({});
 const sedesMap = ref({});
 const rows = ref([]);
 const columns = ref([
-  { name: "cliente", label: "Cliente", align: "center", field: "cliente" },
-  { name: "sede", label: "Sede", align: "center", field: "sede" },
+  { name: "cliente", label: "Cliente", align: "center", field: (row) => row.id_cliente.nombre },
+  { name: "sede", label: "Sede", align: "center", field: (row) => row.id_sede.nombre },
   { name: "fecha", label: "Fecha", align: "center", field: "fecha" },
   { name: "estado", label: "Estado", align: "center", field: "estado" },
   { name: "opciones", label: "Opciones", align: "center", field: "opciones" },
@@ -147,11 +166,7 @@ const columns = ref([
 async function listarIngresos() {
   try {
     const r = await useIngresos.getIngresos();
-    rows.value = r.ingresos.map((ingreso) => ({
-      ...ingreso,
-      cliente: clientesMap.value[ingreso.id_cliente] || "Desconocido",
-      sede: sedesMap.value[ingreso.id_sede] || "Desconocido",
-    }));
+    rows.value = r.ingresos
   } catch (error) {
     console.error(error);
   }
@@ -160,28 +175,18 @@ async function listarIngresos() {
 async function listarIngresosActivos() {
   try {
     const r = await useIngresos.getIngresosActivos();
-    rows.value = r.ingresosActivos.map((ingreso) => ({
-      ...ingreso,
-      cliente: clientesMap.value[ingreso.id_cliente] || "Desconocido",
-      sede: sedesMap.value[ingreso.id_sede] || "Desconocido",
-    })) || [];
+    rows.value = r.ingresosActivos
   } catch (error) {
     console.error(error);
-    rows.value = [];
   }
 }
 
 async function listarIngresosInactivos() {
   try {
     const r = await useIngresos.getIngresosInactivos();
-    rows.value = r.ingresosInactivos.map((ingreso) => ({
-      ...ingreso,
-      cliente: clientesMap.value[ingreso.id_cliente] || "Desconocido",
-      sede: sedesMap.value[ingreso.id_sede] || "Desconocido",
-    })) || [];
+    rows.value = r.ingresosInactivos
   } catch (error) {
     console.error(error);
-    rows.value = [];
   }
 }
 
@@ -276,7 +281,17 @@ async function obtenerClientesYSedes() {
     console.error(error);
   }
 }
+
 obtenerClientesYSedes();
+
+async function obtenerIngresosPorID(Id) {
+  try {
+    const ingresos = await useIngresos.getIngresosByID(Id);
+    rows.value = ingresos; 
+  } catch (error) {
+    console.error(error);
+  }
+}
 
 watch(showForm, (newValue) => {
   if (!newValue) {
@@ -300,6 +315,13 @@ watch(showForm, (newValue) => {
 
 .text-center {
   text-align: center;
+}
+
+.q-icon {
+  font-size: 3rem; 
+}
+.text-h6 {
+  font-size: 1.5rem; 
 }
 </style>
 

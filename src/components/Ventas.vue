@@ -32,6 +32,7 @@
             flat
             bordered
             square
+            no-data-label=""
           >
             <template v-slot:body-cell-opciones="props">
               <q-td :props="props">
@@ -66,6 +67,12 @@
                   {{ props.row.estado === 1 ? "Activo" : "Inactivo" }}
                 </q-chip>
               </q-td>
+            </template>
+            <template v-slot:no-data>
+              <div class="q-pa-md text-center">
+                <q-icon name="sentiment_dissatisfied" size="lg" class="q-mr-sm" />
+                <div class="text-h6">No hay ventas disponibles</div>
+              </div>
             </template>
           </q-table>
         </q-card-section>
@@ -253,5 +260,12 @@ watch(showForm, (newValue) => {
 
 .text-center {
   text-align: center;
+}
+
+.q-icon {
+  font-size: 3rem; 
+}
+.text-h6 {
+  font-size: 1.5rem; 
 }
 </style>

@@ -43,6 +43,16 @@ export const useSedeStore = defineStore("sede", () => {
             return error
         }
     }
+
+    let getSedeByID = async (id) => {
+        try {
+            let res = await axios.get(`http://localhost:2500/api/sedes/${id}`);
+            return res.data.sede;
+        } catch (error) {
+            console.log(error);
+            return error;
+        }
+    }
     
     let postSedes = async (r) => {
         try {
@@ -81,7 +91,7 @@ export const useSedeStore = defineStore("sede", () => {
     }
 
     return {
-        getSedes, getSedesActivos, getSedesInactivos, postSedes, putSedes, toggleEstadoSedes
+        getSedes, getSedesActivos, getSedesInactivos, getSedeByID, postSedes, putSedes, toggleEstadoSedes
     }
 },
 {

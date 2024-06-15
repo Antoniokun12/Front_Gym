@@ -2,66 +2,79 @@
   <div class="login-container">
     <div class="q-pa-md" style="max-width: 400px">
       <h1 class="titulo">GymApp</h1>
-      <q-form class="q-gutter-md">
+      <q-form class="q-gutter-md" @submit.prevent="loginUsuario">
         <q-input
           filled
           class="input"
           v-model="email"
-          label="ingrese su correo electronico *"
-          lazy-rules
-          :rules="[
-            (val) => (val && val.length > 0) || 'Por favor ingrese un correo',
-            (val) =>
-              val.match(/^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/) ||
-              'Por favor ingrese un correo electrónico válido',
-          ]"
+          label="Ingrese su correo electrónico *"
         />
-
         <q-input
           filled
           class="input"
-          type="text"
+          type="password"
           v-model="password"
           label="Ingrese su contraseña"
-          lazy-rules
-          :rules="[
-            (val) =>
-              (val && val.length > 1) || 'Por favor ingrese una contraseña',
-          ]"
         />
         <div class="button-container">
           <q-btn
-            label="Iniciar sesion"
+            label="Iniciar sesión"
             type="submit"
             color="primary"
-            @click="loginUsuario()"
           />
-          <!-- <q-btn
-            label="Reset"
-            type="reset"
-            color="primary"
-            flat
-            class="q-ml-sm"
-          /> -->
         </div>
       </q-form>
     </div>
   </div>
 </template>
+
 <script setup>
 import { ref } from "vue";
 import { useUsuarioStore } from "../stores/usuarios.js";
 import { useRouter } from "vue-router";
+import { Notify } from "quasar";  
 
 let useUsuarios = useUsuarioStore();
 
 const email = ref("");
 const password = ref("");
 const router = useRouter();
-let l = null;
-// const accept = ref(false);
+const errors = ref({
+  email: "",
+  password: ""
+});
+
+function validarCorreo(email) {
+  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return re.test(email);
+}
+
+function mostrarNotificacion(mensaje, color = "negative") {
+  Notify.create({
+    message: mensaje,
+    color: color,
+    position: "top",
+    icon: "sentiment_dissatisfied"
+  });
+}
 
 async function loginUsuario() {
+  errors.value.email = "";
+  errors.value.password = "";
+
+  if (!email.value) {
+    mostrarNotificacion("El correo electrónico es obligatorio.");
+    return;
+  }
+  if (!validarCorreo(email.value)) {
+    mostrarNotificacion("El correo electrónico no es válido.");
+    return;
+  }
+  if (!password.value) {
+    mostrarNotificacion("La contraseña es obligatoria.");
+    return;
+  }
+
   try {
     let data = {
       email: email.value,
@@ -70,15 +83,15 @@ async function loginUsuario() {
     const loginSuccessful = await useUsuarios.login(data);
 
     if (loginSuccessful) {
-      router.push("/home"); // Redirige a la ruta deseada después del inicio de sesión exitoso
+      router.push("/home"); 
       onReset();
     } else {
-      // Manejar el caso en que el inicio de sesión no fue exitoso
-      console.log("Inicio de sesión fallido");
+      mostrarNotificacion("Correo electrónico o contraseña incorrectos.");
       onReset();
     }
   } catch (error) {
     console.error(error);
+    mostrarNotificacion("Ocurrió un error al iniciar sesión. Inténtalo de nuevo más tarde.");
   }
 }
 
@@ -87,6 +100,7 @@ const onReset = () => {
   password.value = "";
 };
 </script>
+
 <style>
 .login-container {
   display: flex;
@@ -112,6 +126,6 @@ const onReset = () => {
   display: flex;
   justify-content: center;
   width: 100%;
-  margin-top: 20px; /* Ajusta el margen superior según sea necesario */
+  margin-top: 20px;
 }
 </style>

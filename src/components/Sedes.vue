@@ -21,6 +21,17 @@
           </q-item>
         </q-list>
       </q-btn-dropdown>
+      <q-select
+        v-model="selectedSedeId"
+        label="Seleccionar Sede"
+        :options="SedeOptions"
+        emit-value
+        map-options
+        option-value="value"
+        option-label="label"
+        style="margin-left: 16px; max-width: 200px;"
+        @update:model-value="obtenerSedePorID"
+      />
     </div>
     <div class="q-pa-md">
       <q-card>
@@ -32,6 +43,7 @@
             flat
             bordered
             square
+            no-data-label=""
           >
             <template v-slot:body-cell-opciones="props">
               <q-td :props="props">
@@ -69,6 +81,12 @@
                   {{ props.row.estado === 1 ? 'Activo' : 'Inactivo' }}
                 </q-chip>
               </q-td>
+            </template>
+            <template v-slot:no-data>
+              <div class="q-pa-md text-center">
+                <q-icon name="sentiment_dissatisfied" size="lg" class="q-mr-sm" />
+                <div class="text-h6">No hay sedes disponibles</div>
+              </div>
             </template>
           </q-table>
         </q-card-section>
@@ -118,6 +136,8 @@ const horario = ref('');
 const ciudad = ref('');
 const telefono = ref('');
 const sedeId = ref(null); // Para almacenar el ID de la sede en edición
+const selectedSedeId = ref("");
+const SedeOptions = ref([]);
 
 const rows = ref([]);
 const columns = ref([
@@ -136,6 +156,10 @@ async function listarSedes() {
     const r = await useSedes.getSedes();
     rows.value = r.sede; // Cambiado para reflejar la estructura correcta de la respuesta
     console.log(r);
+    SedeOptions.value = r.sede.map((sede) => ({
+      label: sede.nombre,
+      value: sede._id,
+    }));
   } catch (error) {
     console.error(error);
   }
@@ -217,6 +241,15 @@ async function desactivarSede(sede) {
   }
 }
 
+async function obtenerSedePorID(SedeId) {
+  try {
+    const sede = await useSedes.getSedeByID(SedeId);
+    rows.value = [sede]; // Actualiza la tabla con el usuario seleccionado
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 watch(showForm, (newValue) => {
   if (!newValue) {
     // Limpiar el formulario cuando se cierra el diálogo
@@ -245,5 +278,12 @@ listarSedes(); // Listar sedes al cargar el componente
 
 .text-center {
   text-align: center;
+}
+
+.q-icon {
+  font-size: 3rem; 
+}
+.text-h6 {
+  font-size: 1.5rem; 
 }
 </style>

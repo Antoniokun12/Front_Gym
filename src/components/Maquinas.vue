@@ -21,17 +21,29 @@
           </q-item>
         </q-list>
       </q-btn-dropdown>
+      <q-select
+        v-model="selectedMaqId"
+        label="Seleccionar Maquina"
+        :options="MaqOptions"
+        emit-value
+        map-options
+        option-value="value"
+        option-label="label"
+        style="margin-left: 16px; max-width: 200px;"
+        @update:model-value="obtenerMaquinaPorID"
+      />
     </div>
     <div class="q-pa-md">
       <q-card>
         <q-card-section>
           <q-table
-            :rows="rows"
+            :rows="enrichedRows"
             :columns="columns"
             row-key="codigo"
             flat
             bordered
             square
+            no-data-label=""
           >
             <template v-slot:body-cell-opciones="props">
               <q-td :props="props">
@@ -66,6 +78,12 @@
                   {{ props.row.estado === 1 ? "Activo" : "Inactivo" }}
                 </q-chip>
               </q-td>
+            </template>
+            <template v-slot:no-data>
+              <div class="q-pa-md text-center">
+                <q-icon name="sentiment_dissatisfied" size="lg" class="q-mr-sm" />
+                <div class="text-h6">No hay maquinas disponibles</div>
+              </div>
             </template>
           </q-table>
         </q-card-section>
@@ -119,7 +137,7 @@
 </template>
 
 <script setup>
-import { ref, watch } from "vue";
+import { ref, computed, watch } from "vue";
 import { useMaquinaStore } from "../stores/maquinas.js";
 import { useSedeStore } from "../stores/sedes.js";
 
@@ -133,12 +151,14 @@ const fecha_ingreso = ref("");
 const fecha_ultimo_mantenimiento = ref("");
 const estado = ref("");
 const maquinaId = ref(null);
+const selectedMaqId = ref("");
+const MaqOptions = ref([]);
 
 const sedesOptions = ref([]);
 const rows = ref([]);
 const columns = ref([
   { name: "codigo", label: "Código", align: "center", field: "codigo" },
-  { name: "id_sede", label: "ID Sede", align: "center", field: "id_sede" },
+  { name: "sede", label: "Sede", align: "center", field: "sede" },
   { name: "descripcion", label: "Descripción", align: "center", field: "descripcion" },
   { name: "fecha_ingreso", label: "Fecha Ingreso", align: "center", field: "fecha_ingreso" },
   { name: "fecha_ultimo_mantenimiento", label: "Fecha Último Mantenimiento", align: "center", field: "fecha_ultimo_mantenimiento" },
@@ -146,10 +166,24 @@ const columns = ref([
   { name: "opciones", label: "Opciones", align: "center", field: "opciones" },
 ]);
 
+const enrichedRows = computed(() => {
+  return rows.value.map(maquina => {
+    const sede = sedesOptions.value.find(s => s.value === maquina.id_sede);
+    return {
+      ...maquina,
+      sede: sede ? sede.label : "Desconocido"
+    };
+  });
+});
+
 async function listarMaquinas() {
   try {
     const r = await useMaquinas.getMaquina();
     rows.value = Array.isArray(r.maquinas) ? r.maquinas : [];
+    MaqOptions.value = r.maquinas.map((maquinas) => ({
+      label: maquinas.descripcion + ' - ' + maquinas.codigo,
+      value: maquinas._id,
+    }));
   } catch (error) {
     console.error(error);
   }
@@ -255,6 +289,16 @@ async function obtenerSedes() {
     console.error(error);
   }
 }
+
+async function obtenerMaquinaPorID(MaqId) {
+  try {
+    const maquina = await useMaquinas.getMaquinaByID(MaqId);
+    rows.value = [maquina]; // Actualiza la tabla con el usuario seleccionado
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 obtenerSedes();
 
 watch(showForm, (newValue) => {
@@ -281,5 +325,12 @@ watch(showForm, (newValue) => {
 
 .text-center {
   text-align: center;
+}
+
+.q-icon {
+  font-size: 3rem; 
+}
+.text-h6 {
+  font-size: 1.5rem; 
 }
 </style>

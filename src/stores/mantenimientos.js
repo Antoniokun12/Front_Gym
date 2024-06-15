@@ -44,6 +44,16 @@ export const useMantenimentosStore = defineStore("mantenimientos", () => {
         }
     }
 
+    let getMantenimientoByMan = async (id) => {
+        try {
+            let res = await axios.get(`http://localhost:2500/api/mantenimientos/maquina/${id}`);
+            return res.data.mantenimiento;
+        } catch (error) {
+            console.log(error);
+            return error;
+        }
+    }
+
     let postMantenimientos = async (mantenimiento) => {
         try {
             let req = await axios.post("http://localhost:2500/api/mantenimientos", mantenimiento);
@@ -81,7 +91,7 @@ export const useMantenimentosStore = defineStore("mantenimientos", () => {
     }
 
     return {
-        getMantenimientos, getMantenimientosActivos, getMantenimientosInactivos, postMantenimientos, putMantenimientos, toggleEstadoMantenimientos
+        getMantenimientos, getMantenimientosActivos, getMantenimientosInactivos, getMantenimientoByMan, postMantenimientos, putMantenimientos, toggleEstadoMantenimientos
     }
 },
 {

@@ -21,17 +21,29 @@
           </q-item>
         </q-list>
       </q-btn-dropdown>
+      <q-select
+        v-model="selectedPagosId"
+        label="Seleccionar Pagos por cliente"
+        :options="clientesOptions"
+        emit-value
+        map-options
+        option-value="value"
+        option-label="label"
+        style="margin-left: 16px; max-width: 200px;"
+        @update:model-value="obtenerPagosPorID"
+      />
     </div>
     <div class="q-pa-md">
       <q-card>
         <q-card-section>
           <q-table
-            :rows="rows"
+            :rows="enrichedRows"
             :columns="columns"
             row-key="_id"
             flat
             bordered
             square
+            no-data-label=""
           >
             <template v-slot:body-cell-opciones="props">
               <q-td :props="props">
@@ -66,6 +78,12 @@
                   {{ props.row.estado === 1 ? "Activo" : "Inactivo" }}
                 </q-chip>
               </q-td>
+            </template>
+            <template v-slot:no-data>
+              <div class="q-pa-md text-center">
+                <q-icon name="sentiment_dissatisfied" size="lg" class="q-mr-sm" />
+                <div class="text-h6">No hay pagos disponibles</div>
+              </div>
             </template>
           </q-table>
         </q-card-section>
@@ -105,8 +123,9 @@
   </div>
 </template>
 
+
 <script setup>
-import { ref, watch } from "vue";
+import { ref, computed, watch } from "vue";
 import { usePagoStore } from "../stores/pagos.js";
 import { useClienteStore } from "../stores/clientes.js";
 
@@ -115,17 +134,28 @@ const useClientes = useClienteStore();
 const showForm = ref(false);
 const id_cliente = ref("");
 const pagoId = ref(null);
+const selectedPagosId = ref("");
 
 const clientesOptions = ref([]);
 const rows = ref([]);
 const columns = ref([
-  { name: "id_cliente", label: "ID Cliente", align: "center", field: "id_cliente" },
+  { name: "id_cliente", label: "Cliente", align: "center", field: "cliente" },
   { name: "plan", label: "Plan", align: "center", field: "plan" },
   { name: "fecha", label: "Fecha", align: "center", field: "fecha" },
   { name: "valor", label: "Valor", align: "center", field: "valor" },
   { name: "estado", label: "Estado", align: "center", field: "estado" },
   { name: "opciones", label: "Opciones", align: "center" },
 ]);
+
+const enrichedRows = computed(() => {
+  return rows.value.map(pago => {
+    const cliente = clientesOptions.value.find(c => c.value === pago.id_cliente);
+    return {
+      ...pago,
+      cliente: cliente ? cliente.label : "Desconocido"
+    };
+  });
+});
 
 async function listarPagos() {
   try {
@@ -160,7 +190,7 @@ async function listarClientes() {
   try {
     const r = await useClientes.getClientes();
     clientesOptions.value = r.clientes.map(cliente => ({
-      label: cliente.documento,
+      label: cliente.nombre,  
       value: cliente._id
     }));
   } catch (error) {
@@ -216,6 +246,15 @@ async function desactivarPago(pago) {
   }
 }
 
+async function obtenerPagosPorID(Id) {
+  try {
+    const pagos = await usePagos.getPagosByID(Id);
+    rows.value = pagos // Actualiza la tabla con el usuario seleccionado
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 watch(showForm, (newValue) => {
   if (!newValue) {
     id_cliente.value = "";
@@ -226,6 +265,7 @@ watch(showForm, (newValue) => {
 listarClientes();
 listarPagos();
 </script>
+
 
 <style>
 .q-card-section {
@@ -238,5 +278,12 @@ listarPagos();
 
 .text-center {
   text-align: center;
+}
+
+.q-icon {
+  font-size: 3rem; 
+}
+.text-h6 {
+  font-size: 1.5rem; 
 }
 </style>

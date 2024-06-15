@@ -48,6 +48,7 @@
             flat
             bordered
             square
+            no-data-label=""
           >
             <template v-slot:body-cell-opciones="props">
               <q-td :props="props">
@@ -82,6 +83,12 @@
                   {{ props.row.estado === 1 ? "Activo" : "Inactivo" }}
                 </q-chip>
               </q-td>
+            </template>
+            <template v-slot:no-data>
+              <div class="q-pa-md text-center">
+                <q-icon name="sentiment_dissatisfied" size="lg" class="q-mr-sm" />
+                <div class="text-h6">No hay planes disponibles</div>
+              </div>
             </template>
           </q-table>
         </q-card-section>
@@ -167,7 +174,7 @@ async function listarPlanes() {
     const r = await planStore.getPlanes();
     rows.value = r.plan || [];
     planOptions.value = r.plan.map((plan) => ({
-      label: plan.codigo,
+      label: plan.descripcion + ' - ' + plan.codigo,
       value: plan._id,
     }));
   } catch (error) {
@@ -276,6 +283,13 @@ listarPlanes();
 
 .text-center {
   text-align: center;
+}
+
+.q-icon {
+  font-size: 3rem; 
+}
+.text-h6 {
+  font-size: 1.5rem; 
 }
 </style>
 

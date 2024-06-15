@@ -44,6 +44,16 @@ export const usePagoStore = defineStore("pago", () => {
         }
     }
 
+    let getPagosByID = async (id) => {
+        try {
+            let res = await axios.get(`http://localhost:2500/api/pagos/pagosx/cliente/${id}`);
+            return res.data.pagos;
+        } catch (error) {
+            console.log(error);
+            return error;
+        }
+    }
+
     let postPagos = async (pago) => {
         try {
             let req = await axios.post("http://localhost:2500/api/pagos", pago);
@@ -81,7 +91,7 @@ export const usePagoStore = defineStore("pago", () => {
     }
 
     return {
-        getPagos, getPagosActivos, getPagosInactivos, postPagos, putPagos, toggleEstadoPagos
+        getPagos, getPagosActivos, getPagosInactivos, getPagosByID, postPagos, putPagos, toggleEstadoPagos
     }
 },
 {

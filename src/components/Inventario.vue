@@ -21,6 +21,17 @@
           </q-item>
         </q-list>
       </q-btn-dropdown>
+      <q-select
+        v-model="selectedInvId"
+        label="Seleccionar codigo producto"
+        :options="InvOptions"
+        emit-value
+        map-options
+        option-value="value"
+        option-label="label"
+        style="margin-left: 16px; max-width: 200px;"
+        @update:model-value="obtenerInvPorID"
+      />
     </div>
     <div class="q-pa-md">
       <q-card>
@@ -32,6 +43,7 @@
             flat
             bordered
             square
+            no-data-label=""
           >
             <template v-slot:body-cell-opciones="props">
               <q-td :props="props">
@@ -66,6 +78,12 @@
                   {{ props.row.estado === 1 ? "Activo" : "Inactivo" }}
                 </q-chip>
               </q-td>
+            </template>
+            <template v-slot:no-data>
+              <div class="q-pa-md text-center">
+                <q-icon name="sentiment_dissatisfied" size="lg" class="q-mr-sm" />
+                <div class="text-h6">No hay productos disponibles</div>
+              </div>
             </template>
           </q-table>
         </q-card-section>
@@ -110,6 +128,8 @@ const descripcion = ref("");
 const valorUnitario = ref(0);
 const cantidad = ref(0);
 const inventarioId = ref(null);
+const selectedInvId = ref("");
+const InvOptions = ref([]);
 
 const rows = ref([]);
 const columns = ref([
@@ -126,6 +146,10 @@ async function listarInventario() {
   try {
     const r = await useInventario.getInventario();
     rows.value = Array.isArray(r.inventarios) ? r.inventarios : [];
+    InvOptions.value = r.inventarios.map((inventarios) => ({
+      label: inventarios.descripcion + ' - ' + inventarios.codigo,
+      value: inventarios._id,
+    }));
   } catch (error) {
     console.error(error);
   }
@@ -205,6 +229,15 @@ async function desactivarInventario(inventario) {
   }
 }
 
+async function obtenerInvPorID(InvId) {
+  try {
+    const inventario = await useInventario.getInventarioByID(InvId);
+    rows.value = [inventario]; // Actualiza la tabla con el usuario seleccionado
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 watch(showForm, (newValue) => {
   if (!newValue) {
     codigo.value = "";
@@ -229,5 +262,12 @@ listarInventario();
 
 .text-center {
   text-align: center;
+}
+
+.q-icon {
+  font-size: 3rem; 
+}
+.text-h6 {
+  font-size: 1.5rem; 
 }
 </style>

@@ -21,6 +21,17 @@
           </q-item>
         </q-list>
       </q-btn-dropdown>
+      <q-select
+        v-model="selectedManId"
+        label="Seleccionar Mantenimientos por Maquina"
+        :options="maquinaOptions"
+        emit-value
+        map-options
+        option-value="value"
+        option-label="label"
+        style="margin-left: 16px; max-width: 200px;"
+        @update:model-value="obtenerManPorID"
+      />
     </div>
     <div class="q-pa-md">
       <q-card>
@@ -32,6 +43,7 @@
             flat
             bordered
             square
+            no-data-label=""
           >
             <template v-slot:body-cell-opciones="props">
               <q-td :props="props">
@@ -66,6 +78,12 @@
                   {{ props.row.estado === 1 ? "Activo" : "Inactivo" }}
                 </q-chip>
               </q-td>
+            </template>
+            <template v-slot:no-data>
+              <div class="q-pa-md text-center">
+                <q-icon name="sentiment_dissatisfied" size="lg" class="q-mr-sm" />
+                <div class="text-h6">No hay mantenimientos disponibles</div>
+              </div>
             </template>
           </q-table>
         </q-card-section>
@@ -144,11 +162,12 @@ const descripcion = ref("");
 const responsable = ref("");
 const precio_mantenimiento = ref(0);
 const mantenimientoId = ref(null);
+const selectedManId = ref("");
 
 const maquinaOptions = ref([]);
 const rows = ref([]);
 const columns = ref([
-  { name: "id_maquina", label: "Código Máquina", align: "center", field: "id_maquina" },
+  { name: "id_maquina", label: "Código Máquina", align: "center", field: (row) => row.id_maquina.codigo },
   { name: "fecha_mantenimiento", label: "Fecha de Mantenimiento", align: "center", field: "fecha_mantenimiento" },
   { name: "descripcion", label: "Descripción", align: "center", field: "descripcion" },
   { name: "responsable", label: "Responsable", align: "center", field: "responsable" },
@@ -258,6 +277,16 @@ async function obtenerMaquinas() {
     console.error(error);
   }
 }
+
+async function obtenerManPorID(Id) {
+  try {
+    const mantenimiento = await useMantenimientos.getMantenimientoByMan(Id);
+    rows.value = mantenimiento 
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 obtenerMaquinas();
 
 watch(showForm, (newValue) => {
@@ -283,5 +312,12 @@ watch(showForm, (newValue) => {
 
 .text-center {
   text-align: center;
+}
+
+.q-icon {
+  font-size: 3rem; 
+}
+.text-h6 {
+  font-size: 1.5rem; 
 }
 </style>
