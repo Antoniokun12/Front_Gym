@@ -8,8 +8,11 @@ export const useClienteStore = defineStore("cliente", () => {
 
     const useUsuario = useUsuarioStore();
     const clientes = ref([]);
+    let loading = ref(false);
+    const seguimientoEditado = ref(null);
 
     let getClientes = async () => {
+        loading.value = true;
         try {
             let res = await axios.get("http://localhost:2500/api/clientes")
             console.log(res);
@@ -18,10 +21,13 @@ export const useClienteStore = defineStore("cliente", () => {
         } catch (error) {
             console.log(error);
             return error
+        } finally {
+            loading.value = false;
         }
     }
 
     let getClientesActivos = async () => {
+        loading.value = true;
         try {
             let res = await axios.get("http://localhost:2500/api/clientes/activos")
             clientes.value = res.data.clientesActivos || [];
@@ -31,10 +37,13 @@ export const useClienteStore = defineStore("cliente", () => {
         } catch (error) {
             console.log(error);
             return error
+        } finally {
+            loading.value = false;
         }
     }
 
     let getClientesInactivos = async () => {
+        loading.value = true;
         try {
             let res = await axios.get("http://localhost:2500/api/clientes/inactivos")
             clientes.value = res.data.clientesInactivos || [];
@@ -44,20 +53,26 @@ export const useClienteStore = defineStore("cliente", () => {
         } catch (error) {
             console.log(error);
             return error
+        } finally {
+            loading.value = false;
         }
     }
 
     let getClienteByID = async (id) => {
+        loading.value = true;
         try {
             let res = await axios.get(`http://localhost:2500/api/clientes/${id}`);
             return res.data.cliente;
         } catch (error) {
             console.log(error);
             return error;
+        } finally {
+            loading.value = false;
         }
     }
 
     let postCliente = async (cliente) => {
+        loading.value = true;
         try {
             let req = await axios.post("http://localhost:2500/api/clientes", cliente, {
                 headers: {
@@ -69,19 +84,38 @@ export const useClienteStore = defineStore("cliente", () => {
         } catch (error) {
             console.error("Error en postCliente:", error.response?.data);
             throw error;
+        } finally {
+            loading.value = false;
         }
     }
 
     let addSeguimiento = async (clienteId, seguimiento) => {
+        loading.value = true;
         try {
             await axios.post(`http://localhost:2500/api/clientes/${clienteId}/seguimiento`, { seguimiento });
         } catch (error) {
             console.error('Error al agregar seguimiento:', error);
             throw error;
+        } finally {
+            loading.value = false;
         }
     }
 
+    let editarSeguimiento = async (id, updateseguimiento) => {
+        loading.value = true;
+        try {
+            console.log('ID del seguimiento a editar:', id); 
+            await axios.put(`http://localhost:2500/api/clientes/seguimiento/${id}`, updateseguimiento); 
+        } catch (error) {
+            throw error;
+        } finally {
+            loading.value = false;
+        }
+    };
+    
+
     let putCliente = async (id, cliente) => {
+        loading.value = true;
         try {
             let req = await axios.put(`http://localhost:2500/api/clientes/actualizar/${id}`, cliente);
             return req.data;
@@ -89,10 +123,13 @@ export const useClienteStore = defineStore("cliente", () => {
         } catch (error) {
             console.log(error);
             return error
+        } finally {
+            loading.value = false;
         }
     }
 
     let toggleEstadoCliente = async (id, activar) => {
+        loading.value = true;
         try {
             const url = activar
                 ? `http://localhost:2500/api/clientes/activar/${id}`
@@ -103,11 +140,13 @@ export const useClienteStore = defineStore("cliente", () => {
         } catch (error) {
             console.log(error);
             return error
+        } finally {
+            loading.value = false;
         }
     }
 
     return {
-        getClientes, getClientesActivos, getClienteByID, getClientesInactivos, postCliente, addSeguimiento, putCliente, toggleEstadoCliente
+        getClientes, getClientesActivos, getClienteByID, getClientesInactivos, postCliente, addSeguimiento, editarSeguimiento, putCliente, toggleEstadoCliente, loading
     }
 },
     {

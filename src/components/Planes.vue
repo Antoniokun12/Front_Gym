@@ -58,7 +58,15 @@
                   round
                   icon="edit"
                   @click="editarPlan(props.row)"
-                />
+                >
+                  <q-tooltip
+                    class="bg-indigo rounded-borders row flex-center"
+                    :offset="[10, 10]"
+                    style="width: 120px; height: 40px; font-size: 15px"
+                  >
+                    Editar Plan
+                  </q-tooltip>
+                </q-btn>
                 <q-btn
                   flat
                   dense
@@ -66,7 +74,15 @@
                   icon="toggle_on"
                   @click="activarPlan(props.row)"
                   v-if="props.row.estado === 0"
-                />
+                >
+                  <q-tooltip
+                    class="bg-indigo rounded-borders row flex-center"
+                    :offset="[10, 10]"
+                    style="width: 120px; height: 40px; font-size: 15px"
+                  >
+                    Activar
+                  </q-tooltip>
+                </q-btn>
                 <q-btn
                   flat
                   dense
@@ -74,7 +90,15 @@
                   icon="toggle_off"
                   @click="desactivarPlan(props.row)"
                   v-if="props.row.estado === 1"
-                />
+                >
+                  <q-tooltip
+                    class="bg-indigo rounded-borders row flex-center"
+                    :offset="[10, 10]"
+                    style="width: 120px; height: 40px; font-size: 15px"
+                  >
+                    Desactivar
+                  </q-tooltip>
+                </q-btn>
               </q-td>
             </template>
             <template v-slot:body-cell-estado="props">
@@ -86,7 +110,11 @@
             </template>
             <template v-slot:no-data>
               <div class="q-pa-md text-center">
-                <q-icon name="sentiment_dissatisfied" size="lg" class="q-mr-sm" />
+                <q-icon
+                  name="sentiment_dissatisfied"
+                  size="lg"
+                  class="q-mr-sm"
+                />
                 <div class="text-h6">No hay planes disponibles</div>
               </div>
             </template>
@@ -128,6 +156,9 @@
           </q-card-section>
         </q-card>
       </q-dialog>
+      <div v-if="planStore.loading" class="overlay">
+        <q-spinner size="xl" color="primary" />
+      </div>
     </div>
   </div>
 </template>
@@ -143,6 +174,10 @@ const codigo = "";
 const descripcion = "";
 const valor = "";
 const dias = "";
+
+const formatNumber = (number) => {
+  return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+};
 
 const planId = ref(null);
 const rows = ref([]);
@@ -161,7 +196,7 @@ const columns = ref([
     align: "center",
     field: "descripcion",
   },
-  { name: "valor", label: "Valor", align: "center", field: "valor" },
+  { name: "valor", label: "Valor", align: "center", field: (row)=>formatNumber(row.valor) },
   { name: "dias", label: "Días", align: "center", field: "dias" },
   { name: "estado", label: "Estado", align: "center", field: "estado" },
   { name: "opciones", label: "Opciones", align: "center", field: "opciones" },
@@ -174,7 +209,7 @@ async function listarPlanes() {
     const r = await planStore.getPlanes();
     rows.value = r.plan || [];
     planOptions.value = r.plan.map((plan) => ({
-      label: plan.descripcion + ' - ' + plan.codigo,
+      label: plan.descripcion + " - " + plan.codigo,
       value: plan._id,
     }));
   } catch (error) {
@@ -286,10 +321,24 @@ listarPlanes();
 }
 
 .q-icon {
-  font-size: 3rem; 
+  font-size: 3rem;
 }
+
 .text-h6 {
-  font-size: 1.5rem; 
+  font-size: 1.5rem;
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
 }
 </style>
 

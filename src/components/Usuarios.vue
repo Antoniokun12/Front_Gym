@@ -2,8 +2,18 @@
   <div>
     <div class="q-pa-md text-center">
       <div class="text-h2">Usuarios</div>
-      <q-btn label="Agregar Usuario" color="primary" @click="showForm = true" class="q-my-md" />
-      <q-btn-dropdown color="primary" icon="visibility" label="Filtrar" style="margin-left: 16px;">
+      <q-btn
+        label="Agregar Usuario"
+        color="primary"
+        @click="showForm = true"
+        class="q-my-md"
+      />
+      <q-btn-dropdown
+        color="primary"
+        icon="visibility"
+        label="Filtrar"
+        style="margin-left: 16px"
+      >
         <q-list>
           <q-item clickable v-ripple @click="listarUsuarios">
             <q-item-section>Listar Todos</q-item-section>
@@ -24,19 +34,71 @@
         map-options
         option-value="value"
         option-label="label"
-        style="margin-left: 16px; max-width: 200px;"
+        style="margin-left: 16px; max-width: 200px"
         @update:model-value="obtenerUsuarioPorID"
       />
     </div>
     <div class="q-pa-md">
       <q-card>
         <q-card-section>
-          <q-table :rows="rows" :columns="columns" row-key="_id" flat bordered square no-data-label="">
+          <q-table
+            :rows="rows"
+            :columns="columns"
+            row-key="_id"
+            flat
+            bordered
+            square
+            no-data-label=""
+          >
             <template v-slot:body-cell-opciones="props">
               <q-td :props="props">
-                <q-btn flat dense round icon="edit" @click="editarUsuario(props.row)" />
-                <q-btn flat dense round icon="toggle_on" @click="activarUsuario(props.row)" v-if="props.row.estado == 0" />
-                <q-btn flat dense round icon="toggle_off" @click="desactivarUsuario(props.row)" v-if="props.row.estado == 1" />
+                <q-btn
+                  flat
+                  dense
+                  round
+                  icon="edit"
+                  @click="editarUsuario(props.row)"
+                >
+                  <q-tooltip
+                    class="bg-indigo rounded-borders row flex-center"
+                    :offset="[10, 10]"
+                    style="width: 120px; height: 40px; font-size: 15px"
+                  >
+                    Editar Usuario
+                  </q-tooltip>
+                </q-btn>
+                <q-btn
+                  flat
+                  dense
+                  round
+                  icon="toggle_on"
+                  @click="activarUsuario(props.row)"
+                  v-if="props.row.estado == 0"
+                >
+                  <q-tooltip
+                    class="bg-indigo rounded-borders row flex-center"
+                    :offset="[10, 10]"
+                    style="width: 120px; height: 40px; font-size: 15px"
+                  >
+                    Activar
+                  </q-tooltip>
+                </q-btn>
+                <q-btn
+                  flat
+                  dense
+                  round
+                  icon="toggle_off"
+                  @click="desactivarUsuario(props.row)"
+                  v-if="props.row.estado == 1"
+                >
+                  <q-tooltip
+                    class="bg-indigo rounded-borders row flex-center"
+                    :offset="[10, 10]"
+                    style="width: 120px; height: 40px; font-size: 15px"
+                  >
+                    Desactivar
+                  </q-tooltip>
+                </q-btn>
               </q-td>
             </template>
             <template v-slot:body-cell-estado="props">
@@ -48,7 +110,11 @@
             </template>
             <template v-slot:no-data>
               <div class="q-pa-md text-center">
-                <q-icon name="sentiment_dissatisfied" size="lg" class="q-mr-sm" />
+                <q-icon
+                  name="sentiment_dissatisfied"
+                  size="lg"
+                  class="q-mr-sm"
+                />
                 <div class="text-h6">No hay Usuarios disponibles</div>
               </div>
             </template>
@@ -71,17 +137,25 @@
                 option-label="label"
                 required
               />
-              <q-input v-model="nombre" label="Nombre Usuario" />
+              <q-input v-model="nombre" label="Nombre Usuario" required/>
               <q-input v-model="email" label="Email" />
               <q-input v-model="telefono" label="Teléfono" />
               <q-input v-model="password" label="Contraseña" />
               <q-select v-model="rol" label="Rol" :options="roles" />
-              <q-btn label="Cancelar" color="negative" @click="cancelarAgregarUsuario" class="q-mr-sm" />
+              <q-btn
+                label="Cancelar"
+                color="negative"
+                @click="cancelarAgregarUsuario"
+                class="q-mr-sm"
+              />
               <q-btn type="submit" label="Guardar" color="primary" />
             </q-form>
           </q-card-section>
         </q-card>
       </q-dialog>
+      <div v-if="useUsuarios.loading" class="overlay">
+        <q-spinner size="xl" color="primary" />
+      </div>
     </div>
   </div>
 </template>
@@ -90,7 +164,7 @@
 import { ref, watch } from "vue";
 import { useUsuarioStore } from "../stores/usuarios.js";
 import { useSedeStore } from "../stores/sedes.js";
-
+ 
 const useUsuarios = useUsuarioStore();
 const useSedes = useSedeStore();
 
@@ -233,10 +307,8 @@ async function obtenerUsuarioPorID(userId) {
   }
 }
 
-
 watch(showForm, (newValue) => {
   if (!newValue) {
-    // Limpiar el formulario cuando se cierra el diálogo
     sede.value = "";
     nombre.value = "";
     email.value = "";
@@ -247,8 +319,8 @@ watch(showForm, (newValue) => {
   }
 });
 
-obtenerSedes(); // Obtener las sedes al cargar el componente
-listarUsuarios(); // Listar usuarios al cargar el componente
+obtenerSedes();
+listarUsuarios();
 </script>
 
 <style>
@@ -265,9 +337,23 @@ listarUsuarios(); // Listar usuarios al cargar el componente
 }
 
 .q-icon {
-  font-size: 3rem; 
+  font-size: 3rem;
 }
+
 .text-h6 {
-  font-size: 1.5rem; 
+  font-size: 1.5rem;
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
 }
 </style>

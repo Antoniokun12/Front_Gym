@@ -8,7 +8,12 @@
         @click="showForm = true"
         class="q-my-md"
       />
-      <q-btn-dropdown color="primary" icon="visibility" label="Filtrar" style="margin-left: 16px;">
+      <q-btn-dropdown
+        color="primary"
+        icon="visibility"
+        label="Filtrar"
+        style="margin-left: 16px"
+      >
         <q-list>
           <q-item clickable v-ripple @click="listarPagos">
             <q-item-section>Listar Todos</q-item-section>
@@ -29,7 +34,7 @@
         map-options
         option-value="value"
         option-label="label"
-        style="margin-left: 16px; max-width: 200px;"
+        style="margin-left: 16px; max-width: 200px"
         @update:model-value="obtenerPagosPorID"
       />
     </div>
@@ -53,7 +58,15 @@
                   round
                   icon="edit"
                   @click="editarPago(props.row)"
-                />
+                >
+                  <q-tooltip
+                    class="bg-indigo rounded-borders row flex-center"
+                    :offset="[10, 10]"
+                    style="width: 120px; height: 40px; font-size: 15px"
+                  >
+                    Editar Pago
+                  </q-tooltip>
+                </q-btn>
                 <q-btn
                   flat
                   dense
@@ -61,7 +74,15 @@
                   icon="toggle_on"
                   @click="activarPago(props.row)"
                   v-if="props.row.estado === 0"
-                />
+                >
+                  <q-tooltip
+                    class="bg-indigo rounded-borders row flex-center"
+                    :offset="[10, 10]"
+                    style="width: 120px; height: 40px; font-size: 15px"
+                  >
+                    Activar
+                  </q-tooltip>
+                </q-btn>
                 <q-btn
                   flat
                   dense
@@ -69,7 +90,15 @@
                   icon="toggle_off"
                   @click="desactivarPago(props.row)"
                   v-else
-                />
+                >
+                  <q-tooltip
+                    class="bg-indigo rounded-borders row flex-center"
+                    :offset="[10, 10]"
+                    style="width: 120px; height: 40px; font-size: 15px"
+                  >
+                    Desactivar
+                  </q-tooltip>
+                </q-btn>
               </q-td>
             </template>
             <template v-slot:body-cell-estado="props">
@@ -81,7 +110,11 @@
             </template>
             <template v-slot:no-data>
               <div class="q-pa-md text-center">
-                <q-icon name="sentiment_dissatisfied" size="lg" class="q-mr-sm" />
+                <q-icon
+                  name="sentiment_dissatisfied"
+                  size="lg"
+                  class="q-mr-sm"
+                />
                 <div class="text-h6">No hay pagos disponibles</div>
               </div>
             </template>
@@ -110,15 +143,14 @@
                 @click="cancelarAgregarPago"
                 class="q-mr-sm"
               />
-              <q-btn
-                type="submit"
-                label="Guardar"
-                color="primary"
-              />
+              <q-btn type="submit" label="Guardar" color="primary" />
             </q-form>
           </q-card-section>
         </q-card>
       </q-dialog>
+      <div v-if="usePagos.loading" class="overlay">
+        <q-spinner size="xl" color="primary" />
+      </div>
     </div>
   </div>
 </template>
@@ -136,23 +168,57 @@ const id_cliente = ref("");
 const pagoId = ref(null);
 const selectedPagosId = ref("");
 
+const formatNumber = (number) => {
+  return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+};
+
 const clientesOptions = ref([]);
 const rows = ref([]);
 const columns = ref([
   { name: "id_cliente", label: "Cliente", align: "center", field: "cliente" },
   { name: "plan", label: "Plan", align: "center", field: "plan" },
-  { name: "fecha", label: "Fecha", align: "center", field: "fecha" },
-  { name: "valor", label: "Valor", align: "center", field: "valor" },
+  {
+    name: "fecha",
+    label: "Fecha",
+    align: "center",
+    field: "fecha",
+    format: (val) => {
+      const fecha = new Date(val);
+      const opcionesFecha = {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      };
+      const opcionesHora = { hour: "2-digit", minute: "2-digit" };
+      const fechaFormateada = fecha.toLocaleDateString(
+        "es-ES",
+        opcionesFecha
+      );
+      const horaFormateada = fecha.toLocaleTimeString(
+        "es-ES",
+        opcionesHora
+      );
+      return `${fechaFormateada} ${horaFormateada}`;
+    },
+  },
+  {
+    name: "valor",
+    label: "Valor",
+    align: "center",
+    field: (row) => formatNumber(row.valor),
+  },
   { name: "estado", label: "Estado", align: "center", field: "estado" },
   { name: "opciones", label: "Opciones", align: "center" },
 ]);
 
 const enrichedRows = computed(() => {
-  return rows.value.map(pago => {
-    const cliente = clientesOptions.value.find(c => c.value === pago.id_cliente);
+  return rows.value.map((pago) => {
+    const cliente = clientesOptions.value.find(
+      (c) => c.value === pago.id_cliente
+    );
     return {
       ...pago,
-      cliente: cliente ? cliente.label : "Desconocido"
+      cliente: cliente ? cliente.label : "Desconocido",
     };
   });
 });
@@ -189,9 +255,9 @@ async function listarPagosInactivos() {
 async function listarClientes() {
   try {
     const r = await useClientes.getClientes();
-    clientesOptions.value = r.clientes.map(cliente => ({
-      label: cliente.nombre,  
-      value: cliente._id
+    clientesOptions.value = r.clientes.map((cliente) => ({
+      label: cliente.nombre + " ( " + cliente.documento + " ) ",
+      value: cliente._id,
     }));
   } catch (error) {
     console.error(error);
@@ -249,7 +315,7 @@ async function desactivarPago(pago) {
 async function obtenerPagosPorID(Id) {
   try {
     const pagos = await usePagos.getPagosByID(Id);
-    rows.value = pagos // Actualiza la tabla con el usuario seleccionado
+    rows.value = pagos; // Actualiza la tabla con el usuario seleccionado
   } catch (error) {
     console.error(error);
   }
@@ -281,9 +347,23 @@ listarPagos();
 }
 
 .q-icon {
-  font-size: 3rem; 
+  font-size: 3rem;
 }
+
 .text-h6 {
-  font-size: 1.5rem; 
+  font-size: 1.5rem;
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
 }
 </style>

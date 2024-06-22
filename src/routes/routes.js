@@ -12,6 +12,8 @@ import Pagos from "../components/Pagos.vue";
 import Inventario from "../components/Inventario.vue";
 import Ventas from "../components/Ventas.vue";
 import Mantenimientos from "../components/Mantenimientos.vue"
+import Enviarcorreo from "../components/Enviarcorreo.vue"
+import Cambiarpassword from "../components/Cambiarpassword.vue"
 import { useUsuarioStore } from '../stores/usuarios';
 
 const auth = (to, from, next) => {
@@ -43,6 +45,16 @@ const routes = [
     path: '/',
     name: 'login',
     component: Login
+  },
+  {
+    path: '/forgot-password',
+    name: 'Enviarcorreo',
+    component: Enviarcorreo
+  },
+  {
+    path: '/reset-password',
+    name: 'Cambiarpassword',
+    component: Cambiarpassword
   },
   {
     path: '/home',

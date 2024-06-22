@@ -58,7 +58,15 @@
                   round
                   icon="edit"
                   @click="editarCliente(props.row)"
-                />
+                >
+                  <q-tooltip
+                    class="bg-indigo rounded-borders row flex-center"
+                    :offset="[10, 10]"
+                    style="width: 120px; height: 40px; font-size: 15px"
+                  >
+                    Editar Cliente
+                  </q-tooltip>
+                </q-btn>
                 <q-btn
                   flat
                   dense
@@ -66,7 +74,15 @@
                   icon="toggle_on"
                   @click="activarCliente(props.row)"
                   v-if="props.row.estado === 0"
-                />
+                >
+                  <q-tooltip
+                    class="bg-indigo rounded-borders row flex-center"
+                    :offset="[10, 10]"
+                    style="width: 120px; height: 40px; font-size: 15px"
+                  >
+                    Activar
+                  </q-tooltip>
+                </q-btn>
                 <q-btn
                   flat
                   dense
@@ -74,21 +90,45 @@
                   icon="toggle_off"
                   @click="desactivarCliente(props.row)"
                   v-if="props.row.estado === 1"
-                />
+                >
+                  <q-tooltip
+                    class="bg-indigo rounded-borders row flex-center"
+                    :offset="[10, 10]"
+                    style="width: 120px; height: 40px; font-size: 15px"
+                  >
+                    Desactivar
+                  </q-tooltip>
+                </q-btn>
                 <q-btn
                   flat
                   dense
                   round
                   icon="add"
                   @click="prepararAgregarSeguimiento(props.row)"
-                />
+                >
+                  <q-tooltip
+                    class="bg-indigo rounded-borders row flex-center"
+                    :offset="[10, 10]"
+                    style="width: 170px; height: 40px; font-size: 15px"
+                  >
+                    Add seguimiento
+                  </q-tooltip>
+                </q-btn>
                 <q-btn
                   flat
                   dense
                   round
                   icon="remove_red_eye"
                   @click="verSeguimientos(props.row)"
-                />
+                >
+                  <q-tooltip
+                    class="bg-indigo rounded-borders row flex-center"
+                    :offset="[10, 10]"
+                    style="width: 170px; height: 40px; font-size: 15px"
+                  >
+                    Ver seguimientos
+                  </q-tooltip>
+                </q-btn>
               </q-td>
             </template>
             <template v-slot:body-cell-estado="props">
@@ -112,8 +152,6 @@
         </q-card-section>
       </q-card>
     </div>
-
-    <!-- Tabla de Seguimientos -->
     <div v-if="clienteSeleccionado" class="q-pa-md seguimiento-table">
       <q-card>
         <q-card-section>
@@ -128,6 +166,7 @@
             @click="cerrarSeguimiento"
             class="close-button"
           />
+
           <q-table
             :rows="clienteSeleccionado.seguimiento"
             :columns="seguimientoColumns"
@@ -136,10 +175,83 @@
             bordered
             square
             no-data-label="no hay seguimientos disponibles"
-          />
+          >
+            <template v-slot:body-cell-editar="props">
+              <q-td :props="props">
+                <q-btn
+                  flat
+                  dense
+                  round
+                  icon="edit"
+                  @click="editarSeguimiento(props.row)"
+                >
+                  <q-tooltip
+                    class="bg-indigo rounded-borders row flex-center"
+                    :offset="[10, 10]"
+                    style="width: 150px; height: 40px; font-size: 15px"
+                  >
+                    Editar Seguimiento
+                  </q-tooltip>
+                </q-btn>
+              </q-td>
+            </template>
+          </q-table>
         </q-card-section>
       </q-card>
     </div>
+
+    <q-dialog v-model="showEditarSeguimientoForm">
+      <q-card>
+        <q-card-section>
+          <q-form @submit="guardarSeguimientoEditado">
+            <q-input
+              v-model="seguimientoEditado.fecha"
+              label="Fecha"
+              type="date"
+              required
+            />
+            <q-input
+              v-model="seguimientoEditado.peso"
+              label="Peso"
+              type="number"
+              required
+            />
+            <q-input
+              v-model="seguimientoEditado.altura"
+              label="Altura"
+              type="number"
+              required
+            />
+            <q-input
+              v-model="seguimientoEditado.medida_brazo"
+              label="Medida del Brazo"
+              type="number"
+              required
+            />
+            <q-input
+              v-model="seguimientoEditado.medida_pierna"
+              label="Medida de la Pierna"
+              type="number"
+              required
+            />
+            <q-input
+              v-model="seguimientoEditado.medida_cintura"
+              label="Medida de la Cintura"
+              type="number"
+              required
+            />
+
+            <q-btn
+              label="Cancelar"
+              color="negative"
+              @click="cancelarEdicionSeguimiento"
+              class="q-mr-sm"
+            />
+            <q-btn type="submit" label="Guardar" color="primary" />
+          </q-form>
+        </q-card-section>
+      </q-card>
+    </q-dialog>
 
     <div class="q-pa-md">
       <q-dialog v-model="showForm">
@@ -155,12 +267,6 @@
                 v-model="cliente.fecha_nacimiento"
                 label="Fecha de Nacimiento"
                 type="date"
-                required
-              />
-              <q-input
-                v-model="cliente.edad"
-                label="Edad"
-                type="number"
                 required
               />
               <q-input v-model="cliente.documento" label="Documento" required />
@@ -221,6 +327,7 @@
                 label="IMC"
                 type="number"
                 required
+                readonly
               />
               <q-input
                 v-model="seguimiento.medida_brazo"
@@ -256,6 +363,9 @@
           </q-card-section>
         </q-card>
       </q-dialog>
+      <div v-if="useClientes.loading" class="overlay">
+        <q-spinner size="xl" color="primary" />
+      </div>
     </div>
   </div>
 </template>
@@ -268,15 +378,30 @@ import { usePlanStore } from "../stores/planes.js";
 const useClientes = useClienteStore();
 const usePlanes = usePlanStore();
 const showForm = ref(false);
-const showSeguimientoForm = ref(false); // Estado para mostrar el formulario de seguimiento
+const showSeguimientoForm = ref(false);
 
 const planesOptions = ref([]);
 const selectedClieId = ref("");
+ 
+const edad = ref("");
+
+
+
+const seguimientoEditado = ref({
+  fecha: "",
+  peso: null,
+  altura: null,
+  imc: null,
+  medida_brazo: null,
+  medida_pierna: null,
+  medida_cintura: null,
+});
+
+const fecha = ref("");
 
 const cliente = ref({
   nombre: "",
   fecha_nacimiento: "",
-  edad: null,
   documento: "",
   direccion: "",
   telefono: "",
@@ -286,7 +411,6 @@ const cliente = ref({
   seguimiento: [],
 });
 const seguimiento = ref({
-  // Datos de seguimiento
   fecha: "",
   peso: "",
   altura: "",
@@ -295,9 +419,10 @@ const seguimiento = ref({
   medida_pierna: "",
   medida_cintura: "",
 });
-const clienteId = ref(null); // Para almacenar el ID del cliente en edición
+const clienteId = ref(null);
 
-const clienteSeleccionado = ref(null); // Lista de planes disponibles
+const clienteSeleccionado = ref(null);
+const showEditarSeguimientoForm = ref(false);
 
 const rows = ref([]);
 const columns = ref([
@@ -307,6 +432,24 @@ const columns = ref([
     label: "Fecha Nacimiento",
     align: "center",
     field: "fecha_nacimiento",
+    format: (val) => {
+      const fecha_nacimiento = new Date(val);
+      const opcionesFecha = {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      };
+      const opcionesHora = { hour: "2-digit", minute: "2-digit" };
+      const fechaFormateada = fecha_nacimiento.toLocaleDateString(
+        "es-ES",
+        opcionesFecha
+      );
+      const horaFormateada = fecha_nacimiento.toLocaleTimeString(
+        "es-ES",
+        opcionesHora
+      );
+      return `${fechaFormateada} ${horaFormateada}`;
+    },
   },
   { name: "edad", label: "Edad", align: "center", field: "edad" },
   {
@@ -314,12 +457,48 @@ const columns = ref([
     label: "Fecha Ingreso",
     align: "center",
     field: "fecha_ingreso",
+    format: (val) => {
+      const fecha_ingreso = new Date(val);
+      const opcionesFecha = {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      };
+      const opcionesHora = { hour: "2-digit", minute: "2-digit" };
+      const fechaFormateada = fecha_ingreso.toLocaleDateString(
+        "es-ES",
+        opcionesFecha
+      );
+      const horaFormateada = fecha_ingreso.toLocaleTimeString(
+        "es-ES",
+        opcionesHora
+      );
+      return `${fechaFormateada} ${horaFormateada}`;
+    },
   },
   {
     name: "fecha_vencimiento",
     label: "Fecha Vencimiento",
     align: "center",
     field: "fecha_vencimiento",
+    format: (val) => {
+      const fecha_vencimiento = new Date(val);
+      const opcionesFecha = {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      };
+      const opcionesHora = { hour: "2-digit", minute: "2-digit" };
+      const fechaFormateada = fecha_vencimiento.toLocaleDateString(
+        "es-ES",
+        opcionesFecha
+      );
+      const horaFormateada = fecha_vencimiento.toLocaleTimeString(
+        "es-ES",
+        opcionesHora
+      );
+      return `${fechaFormateada} ${horaFormateada}`;
+    },
   },
   {
     name: "documento",
@@ -352,7 +531,14 @@ const columns = ref([
 ]);
 
 const seguimientoColumns = ref([
-  { name: "fecha", label: "Fecha", align: "center", field: "fecha" },
+  { name: "fecha", label: "Fecha", align: "center", field: "fecha", format: (val) => {
+      const fecha = new Date(val);
+      const opcionesFecha = { day: '2-digit', month: '2-digit', year: 'numeric' };
+      const opcionesHora = { hour: '2-digit', minute: '2-digit' };
+      const fechaFormateada = fecha.toLocaleDateString('es-ES', opcionesFecha);
+      const horaFormateada = fecha.toLocaleTimeString('es-ES', opcionesHora);
+      return `${fechaFormateada} ${horaFormateada}`;
+    }, },
   { name: "peso", label: "Peso", align: "center", field: "peso" },
   { name: "altura", label: "Altura", align: "center", field: "altura" },
   { name: "imc", label: "IMC", align: "center", field: "imc" },
@@ -374,6 +560,7 @@ const seguimientoColumns = ref([
     align: "center",
     field: "medida_cintura",
   },
+  { name: "editar", label: "Editar", align: "center", field: "editar" },
 ]);
 
 const ClieOptions = ref([]);
@@ -383,7 +570,7 @@ async function listarClientes() {
     const r = await useClientes.getClientes();
     rows.value = r.clientes;
     ClieOptions.value = r.clientes.map((cliente) => ({
-      label: cliente.nombre,
+      label: cliente.nombre + " - " + cliente.documento,
       value: cliente._id,
     }));
     console.log(r);
@@ -452,7 +639,7 @@ async function agregarSeguimiento() {
       throw new Error("ID de cliente no definido");
     }
     await useClientes.addSeguimiento(cliente.value._id, seguimiento.value);
-    listarClientes(); // Actualiza la lista de clientes después de agregar seguimiento
+    listarClientes();
     showSeguimientoForm.value = false;
     limpiarFormularioSeguimiento();
   } catch (error) {
@@ -471,18 +658,35 @@ function cancelarAgregarCliente() {
 }
 
 function editarCliente(clienteData) {
-  // Llenar el formulario con los datos del cliente a editar
   cliente.value = { ...clienteData };
-  clienteId.value = clienteData._id; // Almacenar el ID del cliente
+  clienteId.value = clienteData._id;
+
+  cliente.value.fecha_nacimiento = new Date(clienteData.fecha_nacimiento).toISOString().split('T')[0];
+  
+  // Asegúrate de que clienteData.id_plan sea un valor primitivo (string o number)
+  const idPlan = typeof clienteData.id_plan === 'object' ? clienteData.id_plan._id : clienteData.id_plan;
+
+  // Busca el plan correspondiente en planesOptions
+  const planSeleccionado = planesOptions.value.find(
+    (plan) => plan.value === idPlan
+  );
+  
+  // Si el plan fue encontrado, asigna el plan al cliente
+  if (planSeleccionado) {
+    cliente.value.id_plan = planSeleccionado.value;
+  } else {
+    // Si no se encuentra el plan, puedes manejar el error aquí
+    console.warn(`Plan con id ${idPlan} no encontrado`);
+  }
+  
+  // Muestra el formulario de edición
   showForm.value = true;
 }
+
 
 function verSeguimientos(clienteData) {
   clienteSeleccionado.value = clienteData;
   console.log("Seguimientos del cliente:", clienteData.seguimiento);
-  // Aquí puedes implementar la lógica para mostrar los seguimientos
-  // Por ejemplo, podrías abrir un diálogo que muestre una tabla con los seguimientos
-  // O simplemente desplegar los datos en la consola como se hace aquí
 }
 
 const cerrarSeguimiento = () => {
@@ -491,8 +695,8 @@ const cerrarSeguimiento = () => {
 
 async function activarCliente(clienteData) {
   try {
-    await useClientes.toggleEstadoCliente(clienteData._id, true); // Ajustar función para activar cliente
-    listarClientes(); // Actualiza la lista de clientes después de cambiar el estado
+    await useClientes.toggleEstadoCliente(clienteData._id, true);
+    listarClientes();
   } catch (error) {
     console.error(error);
   }
@@ -500,8 +704,8 @@ async function activarCliente(clienteData) {
 
 async function desactivarCliente(clienteData) {
   try {
-    await useClientes.toggleEstadoCliente(clienteData._id, false); // Ajustar función para desactivar cliente
-    listarClientes(); // Actualiza la lista de clientes después de cambiar el estado
+    await useClientes.toggleEstadoCliente(clienteData._id, false);
+    listarClientes();
   } catch (error) {
     console.error(error);
   }
@@ -510,13 +714,10 @@ async function desactivarCliente(clienteData) {
 async function obtenerPlanes() {
   try {
     const res = await usePlanes.getPlanes();
-    planesOptions.value = res.plan.map((plan) => {
-      console.log(`Plan ID: ${plan._id}`); // Log para verificar el formato
-      return {
-        label: plan.descripcion,
-        value: plan._id, // Asegúrate de que este es un ObjectId válido
-      };
-    });
+    planesOptions.value = res.plan.map((plan) => ({
+      label: plan.descripcion,
+      value: plan._id,
+    }));
     listarClientes();
   } catch (error) {
     console.error(error);
@@ -526,17 +727,96 @@ async function obtenerPlanes() {
 async function obtenerClientePorID(ClieId) {
   try {
     const clientes = await useClientes.getClienteByID(ClieId);
-    rows.value = [clientes]; // Actualiza la tabla con el usuario seleccionado
+    rows.value = [clientes];
   } catch (error) {
     console.error(error);
   }
 }
+ 
+
+
+const cancelarEdicionSeguimiento = () => {
+  seguimientoEditado.value = null;
+  showEditarSeguimientoForm.value = false;
+};
+
+
+const editarSeguimiento = (seguimiento) => {
+  if (!seguimiento || !seguimiento._id) {
+    console.error('Seguimiento no definido o sin ID');
+    return;
+  }
+
+  // Asignar el seguimiento a editar
+  seguimientoEditado.value = {
+    ...seguimiento,
+    fecha: seguimiento.fecha ? new Date(seguimiento.fecha).toISOString().substring(0, 10) : '',
+    _id: seguimiento._id, // Asegurarse de que se utilice el _id del seguimiento
+  };
+
+  console.log('Seguimiento a editar:', seguimientoEditado.value);
+  showEditarSeguimientoForm.value = true;
+};
+
+  
+
+
+
+
+const guardarSeguimientoEditado = async () => {
+  try {
+    // Verificar que el cliente seleccionado y el seguimiento editado tienen IDs definidos
+    if (!clienteSeleccionado.value || !clienteSeleccionado.value._id) {
+      throw new Error('ID de cliente no definido');
+    }
+
+    if (!seguimientoEditado.value || !seguimientoEditado.value._id) {
+      throw new Error('ID de seguimiento no definido');
+    }
+
+    // Mostrar en consola el seguimiento a editar antes de la solicitud HTTP
+    console.log('Seguimiento a editar:', seguimientoEditado.value);
+
+    // Preparar el objeto de datos para enviar al backend
+    const datosActualizados = {
+      idSeguimiento: seguimientoEditado.value._id,
+      updateSeguimiento: {
+        fecha: seguimientoEditado.value.fecha,
+        peso: parseFloat(seguimientoEditado.value.peso),
+        altura: parseFloat(seguimientoEditado.value.altura),
+        imc: parseFloat(seguimientoEditado.value.imc),
+        medida_brazo: parseFloat(seguimientoEditado.value.medida_brazo),
+        medida_pierna: parseFloat(seguimientoEditado.value.medida_pierna),
+        medida_cintura: parseFloat(seguimientoEditado.value.medida_cintura)
+      }
+    };
+
+
+    await useClientes.editarSeguimiento(
+      clienteSeleccionado.value._id,
+      datosActualizados
+    );
+
+
+    showEditarSeguimientoForm.value = false;
+    seguimientoEditado.value = null;
+
+  
+    listarClientes(); 
+
+  } catch (error) {
+    console.error('Error al guardar seguimiento editado:', error);
+    
+  }
+};
+
+
+
 
 obtenerPlanes();
 
 watch(showForm, (newValue) => {
   if (!newValue) {
-    // Limpiar el formulario cuando se cierra el diálogo
     cliente.value = {
       nombre: "",
       fecha_nacimiento: "",
@@ -555,7 +835,7 @@ watch(showForm, (newValue) => {
   }
 });
 
-listarClientes(); // Listar clientes al cargar el componente
+listarClientes();
 </script>
 
 <style>
@@ -586,6 +866,19 @@ listarClientes(); // Listar clientes al cargar el componente
 }
 .text-h6 {
   font-size: 1.5rem;
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
 }
 </style>
 

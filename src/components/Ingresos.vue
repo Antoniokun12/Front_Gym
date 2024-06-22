@@ -8,7 +8,12 @@
         @click="showForm = true"
         class="q-my-md"
       />
-      <q-btn-dropdown color="primary" icon="visibility" label="Filtrar" style="margin-left: 16px;">
+      <q-btn-dropdown
+        color="primary"
+        icon="visibility"
+        label="Filtrar"
+        style="margin-left: 16px"
+      >
         <q-list>
           <q-item clickable v-ripple @click="listarIngresos">
             <q-item-section>Listar Todos</q-item-section>
@@ -53,7 +58,15 @@
                   round
                   icon="edit"
                   @click="editarIngreso(props.row)"
-                />
+                >
+                  <q-tooltip
+                    class="bg-indigo rounded-borders row flex-center"
+                    :offset="[10, 10]"
+                    style="width: 120px; height: 40px; font-size: 15px"
+                  >
+                    Editar Ingreso
+                  </q-tooltip>
+                </q-btn>
                 <q-btn
                   flat
                   dense
@@ -61,7 +74,15 @@
                   icon="toggle_on"
                   @click="activarIngreso(props.row)"
                   v-if="props.row.estado === 0"
-                />
+                >
+                  <q-tooltip
+                    class="bg-indigo rounded-borders row flex-center"
+                    :offset="[10, 10]"
+                    style="width: 120px; height: 40px; font-size: 15px"
+                  >
+                    Activar
+                  </q-tooltip>
+                </q-btn>
                 <q-btn
                   flat
                   dense
@@ -69,7 +90,15 @@
                   icon="toggle_off"
                   @click="desactivarIngreso(props.row)"
                   v-else
-                />
+                >
+                  <q-tooltip
+                    class="bg-indigo rounded-borders row flex-center"
+                    :offset="[10, 10]"
+                    style="width: 120px; height: 40px; font-size: 15px"
+                  >
+                    Desactivar
+                  </q-tooltip>
+                </q-btn>
               </q-td>
             </template>
             <template v-slot:body-cell-estado="props">
@@ -81,7 +110,11 @@
             </template>
             <template v-slot:no-data>
               <div class="q-pa-md text-center">
-                <q-icon name="sentiment_dissatisfied" size="lg" class="q-mr-sm" />
+                <q-icon
+                  name="sentiment_dissatisfied"
+                  size="lg"
+                  class="q-mr-sm"
+                />
                 <div class="text-h6">No hay ingresos disponibles</div>
               </div>
             </template>
@@ -120,15 +153,14 @@
                 @click="cancelarAgregarIngreso"
                 class="q-mr-sm"
               />
-              <q-btn
-                type="submit"
-                label="Guardar"
-                color="primary"
-              />
+              <q-btn type="submit" label="Guardar" color="primary" />
             </q-form>
           </q-card-section>
         </q-card>
       </q-dialog>
+      <div v-if="useIngresos.loading" class="overlay">
+        <q-spinner size="xl" color="primary" />
+      </div>
     </div>
   </div>
 </template>
@@ -156,9 +188,32 @@ const clientesMap = ref({});
 const sedesMap = ref({});
 const rows = ref([]);
 const columns = ref([
-  { name: "cliente", label: "Cliente", align: "center", field: (row) => row.id_cliente.nombre },
-  { name: "sede", label: "Sede", align: "center", field: (row) => row.id_sede.nombre },
-  { name: "fecha", label: "Fecha", align: "center", field: "fecha" },
+  {
+    name: "cliente",
+    label: "Cliente",
+    align: "center",
+    field: (row) => (row.id_cliente ? row.id_cliente.nombre : ""),
+  },
+  {
+    name: "sede",
+    label: "Sede",
+    align: "center",
+    field: (row) => row.id_sede.nombre,
+  },
+  {
+    name: "fecha",
+    label: "Fecha",
+    align: "center",
+    field: "fecha",
+    format: (val) => {
+      const fecha = new Date(val);
+      const opcionesFecha = { day: '2-digit', month: '2-digit', year: 'numeric' };
+      const opcionesHora = { hour: '2-digit', minute: '2-digit' };
+      const fechaFormateada = fecha.toLocaleDateString('es-ES', opcionesFecha);
+      const horaFormateada = fecha.toLocaleTimeString('es-ES', opcionesHora);
+      return `${fechaFormateada} ${horaFormateada}`;
+    },
+  },
   { name: "estado", label: "Estado", align: "center", field: "estado" },
   { name: "opciones", label: "Opciones", align: "center", field: "opciones" },
 ]);
@@ -166,7 +221,7 @@ const columns = ref([
 async function listarIngresos() {
   try {
     const r = await useIngresos.getIngresos();
-    rows.value = r.ingresos
+    rows.value = r.ingresos;
   } catch (error) {
     console.error(error);
   }
@@ -175,7 +230,7 @@ async function listarIngresos() {
 async function listarIngresosActivos() {
   try {
     const r = await useIngresos.getIngresosActivos();
-    rows.value = r.ingresosActivos
+    rows.value = r.ingresosActivos;
   } catch (error) {
     console.error(error);
   }
@@ -184,7 +239,7 @@ async function listarIngresosActivos() {
 async function listarIngresosInactivos() {
   try {
     const r = await useIngresos.getIngresosInactivos();
-    rows.value = r.ingresosInactivos
+    rows.value = r.ingresosInactivos;
   } catch (error) {
     console.error(error);
   }
@@ -192,11 +247,9 @@ async function listarIngresosInactivos() {
 
 async function agregarOEditarIngreso() {
   try {
-    // Log para verificar id_sede e id_cliente
     console.log(`ID de Cliente seleccionado: ${id_cliente.value}`);
     console.log(`ID de Sede seleccionado: ${id_sede.value}`);
 
-    // Validar que id_cliente e id_sede sean ObjectId válidos
     if (!/^[0-9a-fA-F]{24}$/.test(id_cliente.value)) {
       throw new Error("ID de Cliente inválido");
     }
@@ -228,8 +281,8 @@ function cancelarAgregarIngreso() {
 }
 
 function editarIngreso(ingreso) {
-  id_cliente.value = ingreso.id_cliente;
-  id_sede.value = ingreso.id_sede;
+  id_cliente.value = ingreso.id_cliente.nombre;
+  id_sede.value = ingreso.id_sede.nombre;
   fecha.value = ingreso.fecha.split("T")[0];
   estado.value = ingreso.estado === 1 ? "Activo" : "Inactivo";
   ingresoId.value = ingreso._id;
@@ -258,7 +311,7 @@ async function obtenerClientesYSedes() {
   try {
     const resClientes = await useClientes.getClientes();
     clientesOptions.value = resClientes.clientes.map((cliente) => ({
-      label: cliente.nombre,
+      label: cliente.nombre + " - " + cliente.documento,
       value: cliente._id,
     }));
     clientesMap.value = resClientes.clientes.reduce((acc, cliente) => {
@@ -287,11 +340,13 @@ obtenerClientesYSedes();
 async function obtenerIngresosPorID(Id) {
   try {
     const ingresos = await useIngresos.getIngresosByID(Id);
-    rows.value = ingresos; 
+    rows.value = ingresos;
   } catch (error) {
     console.error(error);
   }
 }
+
+listarIngresos()
 
 watch(showForm, (newValue) => {
   if (!newValue) {
@@ -318,10 +373,24 @@ watch(showForm, (newValue) => {
 }
 
 .q-icon {
-  font-size: 3rem; 
+  font-size: 3rem;
 }
+
 .text-h6 {
-  font-size: 1.5rem; 
+  font-size: 1.5rem;
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
 }
 </style>
 

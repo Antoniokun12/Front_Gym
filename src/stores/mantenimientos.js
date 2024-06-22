@@ -5,8 +5,10 @@ import { ref } from "vue"
 export const useMantenimentosStore = defineStore("mantenimientos", () => {
 
     const mantenimientos = ref([]);
+    let loading = ref(false);
 
     let getMantenimientos = async () => {
+        loading.value = true;
         try {
             let res = await axios.get("http://localhost:2500/api/mantenimientos")
             console.log(res);
@@ -15,10 +17,13 @@ export const useMantenimentosStore = defineStore("mantenimientos", () => {
         } catch (error) {
             console.log(error);
             return error
+        } finally {
+            loading.value = false;
         }
     }
 
     let getMantenimientosActivos = async () => {
+        loading.value = true;
         try {
             let res = await axios.get("http://localhost:2500/api/mantenimientos/activos")
             mantenimientos.value = res.data.mantenimientosActivos || [];
@@ -28,10 +33,13 @@ export const useMantenimentosStore = defineStore("mantenimientos", () => {
         } catch (error) {
             console.log(error);
             return error
+        } finally {
+            loading.value = false;
         }
     }
 
     let getMantenimientosInactivos = async () => {
+        loading.value = true;
         try {
             let res = await axios.get("http://localhost:2500/api/mantenimientos/inactivos")
             mantenimientos.value = res.data.mantenimientosInactivos || [];
@@ -41,20 +49,26 @@ export const useMantenimentosStore = defineStore("mantenimientos", () => {
         } catch (error) {
             console.log(error);
             return error
+        } finally {
+            loading.value = false;
         }
     }
 
     let getMantenimientoByMan = async (id) => {
+        loading.value = true;
         try {
             let res = await axios.get(`http://localhost:2500/api/mantenimientos/maquina/${id}`);
             return res.data.mantenimiento;
         } catch (error) {
             console.log(error);
             return error;
+        } finally {
+            loading.value = false;
         }
     }
 
     let postMantenimientos = async (mantenimiento) => {
+        loading.value = true;
         try {
             let req = await axios.post("http://localhost:2500/api/mantenimientos", mantenimiento);
             return req.data;
@@ -62,10 +76,13 @@ export const useMantenimentosStore = defineStore("mantenimientos", () => {
         } catch (error) {
             console.log(error);
             return error
+        } finally {
+            loading.value = false;
         }
     }
 
     let putMantenimientos = async (id, mantenimiento) => {
+        loading.value = true;
         try {
             let req = await axios.put(`http://localhost:2500/api/mantenimientos/actualizar/${id}`, mantenimiento);
             return req.data;
@@ -73,10 +90,13 @@ export const useMantenimentosStore = defineStore("mantenimientos", () => {
         } catch (error) {
             console.log(error);
             return error
+        } finally {
+            loading.value = false;
         }
     }
 
     let toggleEstadoMantenimientos = async (id, activar) => {
+        loading.value = true;
         try {
             const url = activar
                 ? `http://localhost:2500/api/mantenimientos/activar/${id}`
@@ -87,11 +107,13 @@ export const useMantenimentosStore = defineStore("mantenimientos", () => {
         } catch (error) {
             console.log(error);
             return error
+        } finally {
+            loading.value = false;
         }
     }
 
     return {
-        getMantenimientos, getMantenimientosActivos, getMantenimientosInactivos, getMantenimientoByMan, postMantenimientos, putMantenimientos, toggleEstadoMantenimientos
+        getMantenimientos, getMantenimientosActivos, getMantenimientosInactivos, getMantenimientoByMan, postMantenimientos, putMantenimientos, toggleEstadoMantenimientos, loading
     }
 },
 {

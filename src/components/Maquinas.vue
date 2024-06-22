@@ -8,7 +8,12 @@
         @click="showForm = true"
         class="q-my-md"
       />
-      <q-btn-dropdown color="primary" icon="visibility" label="Filtrar" style="margin-left: 16px;">
+      <q-btn-dropdown
+        color="primary"
+        icon="visibility"
+        label="Filtrar"
+        style="margin-left: 16px"
+      >
         <q-list>
           <q-item clickable v-ripple @click="listarMaquinas">
             <q-item-section>Listar Todos</q-item-section>
@@ -29,7 +34,7 @@
         map-options
         option-value="value"
         option-label="label"
-        style="margin-left: 16px; max-width: 200px;"
+        style="margin-left: 16px; max-width: 200px"
         @update:model-value="obtenerMaquinaPorID"
       />
     </div>
@@ -53,7 +58,15 @@
                   round
                   icon="edit"
                   @click="editarMaquina(props.row)"
-                />
+                >
+                  <q-tooltip
+                    class="bg-indigo rounded-borders row flex-center"
+                    :offset="[10, 10]"
+                    style="width: 150px; height: 40px; font-size: 15px"
+                  >
+                    Editar Maquina
+                  </q-tooltip>
+                </q-btn>
                 <q-btn
                   flat
                   dense
@@ -61,7 +74,15 @@
                   icon="toggle_on"
                   @click="activarMaquina(props.row)"
                   v-if="props.row.estado === 0"
-                />
+                >
+                  <q-tooltip
+                    class="bg-indigo rounded-borders row flex-center"
+                    :offset="[10, 10]"
+                    style="width: 120px; height: 40px; font-size: 15px"
+                  >
+                    Activar
+                  </q-tooltip>
+                </q-btn>
                 <q-btn
                   flat
                   dense
@@ -69,7 +90,15 @@
                   icon="toggle_off"
                   @click="desactivarMaquina(props.row)"
                   v-else
-                />
+                >
+                  <q-tooltip
+                    class="bg-indigo rounded-borders row flex-center"
+                    :offset="[10, 10]"
+                    style="width: 120px; height: 40px; font-size: 15px"
+                  >
+                    Desactivar
+                  </q-tooltip>
+                </q-btn>
               </q-td>
             </template>
             <template v-slot:body-cell-estado="props">
@@ -81,7 +110,11 @@
             </template>
             <template v-slot:no-data>
               <div class="q-pa-md text-center">
-                <q-icon name="sentiment_dissatisfied" size="lg" class="q-mr-sm" />
+                <q-icon
+                  name="sentiment_dissatisfied"
+                  size="lg"
+                  class="q-mr-sm"
+                />
                 <div class="text-h6">No hay maquinas disponibles</div>
               </div>
             </template>
@@ -123,15 +156,14 @@
                 @click="cancelarAgregarMaquina"
                 class="q-mr-sm"
               />
-              <q-btn
-                type="submit"
-                label="Guardar"
-                color="primary"
-              />
+              <q-btn type="submit" label="Guardar" color="primary" />
             </q-form>
           </q-card-section>
         </q-card>
       </q-dialog>
+      <div v-if="useMaquinas.loading" class="overlay">
+        <q-spinner size="xl" color="primary" />
+      </div>
     </div>
   </div>
 </template>
@@ -159,19 +191,50 @@ const rows = ref([]);
 const columns = ref([
   { name: "codigo", label: "Código", align: "center", field: "codigo" },
   { name: "sede", label: "Sede", align: "center", field: "sede" },
-  { name: "descripcion", label: "Descripción", align: "center", field: "descripcion" },
-  { name: "fecha_ingreso", label: "Fecha Ingreso", align: "center", field: "fecha_ingreso" },
-  { name: "fecha_ultimo_mantenimiento", label: "Fecha Último Mantenimiento", align: "center", field: "fecha_ultimo_mantenimiento" },
+  {
+    name: "descripcion",
+    label: "Descripción",
+    align: "center",
+    field: "descripcion",
+  },
+  {
+    name: "fecha_ingreso",
+    label: "Fecha Ingreso",
+    align: "center",
+    field: "fecha_ingreso",
+    format: (val) => {
+      const fecha_ingreso = new Date(val);
+      const opcionesFecha = { day: '2-digit', month: '2-digit', year: 'numeric' };
+      const opcionesHora = { hour: '2-digit', minute: '2-digit' };
+      const fechaFormateada = fecha_ingreso.toLocaleDateString('es-ES', opcionesFecha);
+      const horaFormateada = fecha_ingreso.toLocaleTimeString('es-ES', opcionesHora);
+      return `${fechaFormateada} ${horaFormateada}`;
+    },
+  },
+  {
+    name: "fecha_ultimo_mantenimiento",
+    label: "Fecha Último Mantenimiento",
+    align: "center",
+    field: "fecha_ultimo_mantenimiento",
+    format: (val) => {
+      const fecha_ultimo_mantenimiento = new Date(val);
+      const opcionesFecha = { day: '2-digit', month: '2-digit', year: 'numeric' };
+      const opcionesHora = { hour: '2-digit', minute: '2-digit' };
+      const fechaFormateada = fecha_ultimo_mantenimiento.toLocaleDateString('es-ES', opcionesFecha);
+      const horaFormateada = fecha_ultimo_mantenimiento.toLocaleTimeString('es-ES', opcionesHora);
+      return `${fechaFormateada} ${horaFormateada}`;
+    },
+  },
   { name: "estado", label: "Estado", align: "center", field: "estado" },
   { name: "opciones", label: "Opciones", align: "center", field: "opciones" },
 ]);
 
 const enrichedRows = computed(() => {
-  return rows.value.map(maquina => {
-    const sede = sedesOptions.value.find(s => s.value === maquina.id_sede);
+  return rows.value.map((maquina) => {
+    const sede = sedesOptions.value.find((s) => s.value === maquina.id_sede);
     return {
       ...maquina,
-      sede: sede ? sede.label : "Desconocido"
+      sede: sede ? sede.label : "Desconocido",
     };
   });
 });
@@ -181,7 +244,7 @@ async function listarMaquinas() {
     const r = await useMaquinas.getMaquina();
     rows.value = Array.isArray(r.maquinas) ? r.maquinas : [];
     MaqOptions.value = r.maquinas.map((maquinas) => ({
-      label: maquinas.descripcion + ' - ' + maquinas.codigo,
+      label: maquinas.descripcion + " - " + maquinas.codigo,
       value: maquinas._id,
     }));
   } catch (error) {
@@ -250,7 +313,9 @@ function editarMaquina(maquina) {
   id_sede.value = maquina.id_sede;
   descripcion.value = maquina.descripcion;
   fecha_ingreso.value = maquina.fecha_ingreso.split("T")[0];
-  fecha_ultimo_mantenimiento.value = maquina.fecha_ultimo_mantenimiento ? maquina.fecha_ultimo_mantenimiento.split("T")[0] : "";
+  fecha_ultimo_mantenimiento.value = maquina.fecha_ultimo_mantenimiento
+    ? maquina.fecha_ultimo_mantenimiento.split("T")[0]
+    : "";
   estado.value = maquina.estado === 1 ? "Activo" : "Inactivo";
   maquinaId.value = maquina._id;
   showForm.value = true;
@@ -299,6 +364,7 @@ async function obtenerMaquinaPorID(MaqId) {
   }
 }
 
+listarMaquinas()
 obtenerSedes();
 
 watch(showForm, (newValue) => {
@@ -328,9 +394,23 @@ watch(showForm, (newValue) => {
 }
 
 .q-icon {
-  font-size: 3rem; 
+  font-size: 3rem;
 }
+
 .text-h6 {
-  font-size: 1.5rem; 
+  font-size: 1.5rem;
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
 }
 </style>

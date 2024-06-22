@@ -6,8 +6,10 @@ import { ref } from "vue"
 
 export const usePlanStore = defineStore("plan", () => {
     const planes = ref([]);
+    let loading = ref(false);
 
     let getPlanes = async () => {
+        loading.value = true;
         try {
             let res = await axios.get("http://localhost:2500/api/planes")
             console.log(res);
@@ -16,10 +18,13 @@ export const usePlanStore = defineStore("plan", () => {
         } catch (error) {
             console.log(error);
             return error
+        } finally {
+            loading.value = false;
         }
     }
 
     let getPlanesActivos = async () => {
+        loading.value = true;
         try {
             let res = await axios.get("http://localhost:2500/api/planes/activos")
             planes.value = res.data.planesActivos || [];
@@ -29,10 +34,13 @@ export const usePlanStore = defineStore("plan", () => {
         } catch (error) {
             console.log(error);
             return error
+        } finally {
+            loading.value = false;
         }
     }
 
     let getPlanesInactivos = async () => {
+        loading.value = true;
         try {
             let res = await axios.get("http://localhost:2500/api/planes/inactivos")
             planes.value = res.data.planesInactivos || [];
@@ -42,20 +50,26 @@ export const usePlanStore = defineStore("plan", () => {
         } catch (error) {
             console.log(error);
             return error
+        } finally {
+            loading.value = false;
         }
     }
 
     let getPlanesByID = async (id) => {
+        loading.value = true;
         try {
             let res = await axios.get(`http://localhost:2500/api/planes/${id}`);
             return res.data.plan;
         } catch (error) {
             console.log(error);
             return error;
+        } finally {
+            loading.value = false;
         }
     }
 
     let postPlanes = async (plan) => {
+        loading.value = true;
         try {
             let req = await axios.post("http://localhost:2500/api/planes", plan);
             return req.data;
@@ -63,10 +77,13 @@ export const usePlanStore = defineStore("plan", () => {
         } catch (error) {
             console.log(error);
             return error
+        } finally {
+            loading.value = false;
         }
     }
 
     let putPlanes = async (id, plan) => {
+        loading.value = true;
         try {
             let req = await axios.put(`http://localhost:2500/api/planes/actualizar/${id}`, plan);
             return req.data;
@@ -74,10 +91,13 @@ export const usePlanStore = defineStore("plan", () => {
         } catch (error) {
             console.log(error);
             return error
+        } finally {
+            loading.value = false;
         }
     }
 
     let toggleEstadoPlanes = async (id, activar) => {
+        loading.value = true;
         try {
             const url = activar
                 ? `http://localhost:2500/api/planes/activar/${id}`
@@ -88,12 +108,14 @@ export const usePlanStore = defineStore("plan", () => {
         } catch (error) {
             console.log(error);
             return error
+        } finally {
+            loading.value = false;
         }
     }
 
     
     return {
-        getPlanes, getPlanesActivos, getPlanesInactivos, getPlanesByID, postPlanes, putPlanes, toggleEstadoPlanes
+        getPlanes, getPlanesActivos, getPlanesInactivos, getPlanesByID, postPlanes, putPlanes, toggleEstadoPlanes, loading
     }
 },
     {

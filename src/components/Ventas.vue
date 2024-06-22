@@ -8,7 +8,12 @@
         @click="showForm = true"
         class="q-my-md"
       />
-      <q-btn-dropdown color="primary" icon="visibility" label="Filtrar" style="margin-left: 16px;">
+      <q-btn-dropdown
+        color="primary"
+        icon="visibility"
+        label="Filtrar"
+        style="margin-left: 16px"
+      >
         <q-list>
           <q-item clickable v-ripple @click="listarVentas">
             <q-item-section>Listar Todos</q-item-section>
@@ -42,7 +47,15 @@
                   round
                   icon="edit"
                   @click="editarVenta(props.row)"
-                />
+                >
+                  <q-tooltip
+                    class="bg-indigo rounded-borders row flex-center"
+                    :offset="[10, 10]"
+                    style="width: 120px; height: 40px; font-size: 15px"
+                  >
+                    Editar Venta
+                  </q-tooltip>
+                </q-btn>
                 <q-btn
                   flat
                   dense
@@ -50,7 +63,15 @@
                   icon="toggle_on"
                   @click="activarVenta(props.row)"
                   v-if="props.row.estado === 0"
-                />
+                >
+                  <q-tooltip
+                    class="bg-indigo rounded-borders row flex-center"
+                    :offset="[10, 10]"
+                    style="width: 120px; height: 40px; font-size: 15px"
+                  >
+                    Activar
+                  </q-tooltip>
+                </q-btn>
                 <q-btn
                   flat
                   dense
@@ -58,7 +79,15 @@
                   icon="toggle_off"
                   @click="desactivarVenta(props.row)"
                   v-else
-                />
+                >
+                  <q-tooltip
+                    class="bg-indigo rounded-borders row flex-center"
+                    :offset="[10, 10]"
+                    style="width: 120px; height: 40px; font-size: 15px"
+                  >
+                    Desactivar
+                  </q-tooltip>
+                </q-btn>
               </q-td>
             </template>
             <template v-slot:body-cell-estado="props">
@@ -70,7 +99,11 @@
             </template>
             <template v-slot:no-data>
               <div class="q-pa-md text-center">
-                <q-icon name="sentiment_dissatisfied" size="lg" class="q-mr-sm" />
+                <q-icon
+                  name="sentiment_dissatisfied"
+                  size="lg"
+                  class="q-mr-sm"
+                />
                 <div class="text-h6">No hay ventas disponibles</div>
               </div>
             </template>
@@ -93,22 +126,26 @@
                 option-label="label"
                 required
               />
-              <q-input v-model="cantidad" type="number" label="Cantidad" required />
+              <q-input
+                v-model="cantidad"
+                type="number"
+                label="Cantidad"
+                required
+              />
               <q-btn
                 label="Cancelar"
                 color="negative"
                 @click="cancelarAgregarVenta"
                 class="q-mr-sm"
               />
-              <q-btn
-                type="submit"
-                label="Guardar"
-                color="primary"
-              />
+              <q-btn type="submit" label="Guardar" color="primary" />
             </q-form>
           </q-card-section>
         </q-card>
       </q-dialog>
+      <div v-if="useVentas.loading" class="overlay">
+        <q-spinner size="xl" color="primary" />
+      </div>
     </div>
   </div>
 </template>
@@ -125,14 +162,55 @@ const codigo_producto = ref("");
 const cantidad = ref(0);
 const ventaId = ref(null);
 
+const formatNumber = (number) => {
+  return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+};
+
 const productoOptions = ref([]);
 const rows = ref([]);
 const columns = ref([
-  { name: "codigo_producto", label: "Código Producto", align: "center", field: "codigo_producto" },
-  { name: "fecha", label: "Fecha", align: "center", field: "fecha" },
-  { name: "valor_unitario", label: "Valor Unitario", align: "center", field: "valor_unitario" },
-  { name: "cantidad", label: "Cantidad", align: "center", field: "cantidad" },
-  { name: "total", label: "Total", align: "center", field: "total" },
+  {
+    name: "codigo_producto",
+    label: "Código Producto",
+    align: "center",
+    field: "codigo_producto",
+  },
+  {
+    name: "fecha",
+    label: "Fecha",
+    align: "center",
+    field: "fecha",
+    format: (val) => {
+      const fecha = new Date(val);
+      const opcionesFecha = {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      };
+      const opcionesHora = { hour: "2-digit", minute: "2-digit" };
+      const fechaFormateada = fecha.toLocaleDateString("es-ES", opcionesFecha);
+      const horaFormateada = fecha.toLocaleTimeString("es-ES", opcionesHora);
+      return `${fechaFormateada} ${horaFormateada}`;
+    },
+  },
+  {
+    name: "valor_unitario",
+    label: "Valor Unitario",
+    align: "center",
+    field: (row) => formatNumber(row.valor_unitario),
+  },
+  {
+    name: "cantidad",
+    label: "Cantidad",
+    align: "center",
+    field: (row) => formatNumber(row.cantidad),
+  },
+  {
+    name: "total",
+    label: "Total",
+    align: "center",
+    field: (row) => formatNumber(row.total),
+  },
   { name: "estado", label: "Estado", align: "center", field: "estado" },
   { name: "opciones", label: "Opciones", align: "center" },
 ]);
@@ -168,7 +246,9 @@ async function listarVentasInactivos() {
 
 async function agregarOEditarVenta() {
   try {
-    const producto = productoOptions.value.find(prod => prod.value === codigo_producto.value);
+    const producto = productoOptions.value.find(
+      (prod) => prod.value === codigo_producto.value
+    );
     const valor_unitario = producto ? producto.valorUnitario : 0;
     const total = valor_unitario * cantidad.value;
 
@@ -228,7 +308,7 @@ async function obtenerProductos() {
     const res = await useInventario.getInventario();
     productoOptions.value = res.inventarios.map((producto) => {
       return {
-        label: producto.codigo,
+        label: producto.codigo + " - " + producto.descripcion,
         value: producto.codigo,
         valorUnitario: producto.valorUnitario,
       };
@@ -239,6 +319,7 @@ async function obtenerProductos() {
   }
 }
 obtenerProductos();
+listarVentas()
 
 watch(showForm, (newValue) => {
   if (!newValue) {
@@ -263,9 +344,23 @@ watch(showForm, (newValue) => {
 }
 
 .q-icon {
-  font-size: 3rem; 
+  font-size: 3rem;
 }
+
 .text-h6 {
-  font-size: 1.5rem; 
+  font-size: 1.5rem;
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
 }
 </style>

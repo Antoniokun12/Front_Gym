@@ -17,13 +17,17 @@
           label="Ingrese su contraseña"
         />
         <div class="button-container">
-          <q-btn
-            label="Iniciar sesión"
-            type="submit"
-            color="primary"
-          />
+          <q-btn label="Iniciar sesión" type="submit" color="primary" />
+        </div>
+        <div class="forgot-password-container">
+          <router-link to="/forgot-password"
+            >¿Olvidaste tu contraseña?</router-link
+          >
         </div>
       </q-form>
+    </div>
+    <div v-if="useUsuarios.loading" class="overlay">
+      <q-spinner size="xl" color="primary" />
     </div>
   </div>
 </template>
@@ -32,7 +36,7 @@
 import { ref } from "vue";
 import { useUsuarioStore } from "../stores/usuarios.js";
 import { useRouter } from "vue-router";
-import { Notify } from "quasar";  
+import { Notify } from "quasar";
 
 let useUsuarios = useUsuarioStore();
 
@@ -41,7 +45,7 @@ const password = ref("");
 const router = useRouter();
 const errors = ref({
   email: "",
-  password: ""
+  password: "",
 });
 
 function validarCorreo(email) {
@@ -54,7 +58,7 @@ function mostrarNotificacion(mensaje, color = "negative") {
     message: mensaje,
     color: color,
     position: "top",
-    icon: "sentiment_dissatisfied"
+    icon: "sentiment_dissatisfied",
   });
 }
 
@@ -83,7 +87,7 @@ async function loginUsuario() {
     const loginSuccessful = await useUsuarios.login(data);
 
     if (loginSuccessful) {
-      router.push("/home"); 
+      router.push("/home");
       onReset();
     } else {
       mostrarNotificacion("Correo electrónico o contraseña incorrectos.");
@@ -91,7 +95,9 @@ async function loginUsuario() {
     }
   } catch (error) {
     console.error(error);
-    mostrarNotificacion("Ocurrió un error al iniciar sesión. Inténtalo de nuevo más tarde.");
+    mostrarNotificacion(
+      "Ocurrió un error al iniciar sesión. Inténtalo de nuevo más tarde."
+    );
   }
 }
 
@@ -127,5 +133,16 @@ const onReset = () => {
   justify-content: center;
   width: 100%;
   margin-top: 20px;
+}
+
+.forgot-password-container {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.forgot-password-container a {
+  color: rgb(242, 242, 13);
+  text-decoration: underline;
+  cursor: pointer;
 }
 </style>

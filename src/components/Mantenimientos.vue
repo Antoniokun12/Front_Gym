@@ -8,7 +8,12 @@
         @click="showForm = true"
         class="q-my-md"
       />
-      <q-btn-dropdown color="primary" icon="visibility" label="Filtrar" style="margin-left: 16px;">
+      <q-btn-dropdown
+        color="primary"
+        icon="visibility"
+        label="Filtrar"
+        style="margin-left: 16px"
+      >
         <q-list>
           <q-item clickable v-ripple @click="listarMantenimientos">
             <q-item-section>Listar Todos</q-item-section>
@@ -29,7 +34,7 @@
         map-options
         option-value="value"
         option-label="label"
-        style="margin-left: 16px; max-width: 200px;"
+        style="margin-left: 16px; max-width: 200px"
         @update:model-value="obtenerManPorID"
       />
     </div>
@@ -53,7 +58,15 @@
                   round
                   icon="edit"
                   @click="editarMantenimiento(props.row)"
-                />
+                >
+                  <q-tooltip
+                    class="bg-indigo rounded-borders row flex-center"
+                    :offset="[10, 10]"
+                    style="width: 180px; height: 40px; font-size: 15px"
+                  >
+                    Editar Mantenimiento
+                  </q-tooltip>
+                </q-btn>
                 <q-btn
                   flat
                   dense
@@ -61,7 +74,15 @@
                   icon="toggle_on"
                   @click="activarMantenimiento(props.row)"
                   v-if="props.row.estado === 0"
-                />
+                >
+                  <q-tooltip
+                    class="bg-indigo rounded-borders row flex-center"
+                    :offset="[10, 10]"
+                    style="width: 120px; height: 40px; font-size: 15px"
+                  >
+                    Activar
+                  </q-tooltip>
+                </q-btn>
                 <q-btn
                   flat
                   dense
@@ -69,7 +90,15 @@
                   icon="toggle_off"
                   @click="desactivarMantenimiento(props.row)"
                   v-else
-                />
+                >
+                  <q-tooltip
+                    class="bg-indigo rounded-borders row flex-center"
+                    :offset="[10, 10]"
+                    style="width: 120px; height: 40px; font-size: 15px"
+                  >
+                    Desactivar
+                  </q-tooltip>
+                </q-btn>
               </q-td>
             </template>
             <template v-slot:body-cell-estado="props">
@@ -81,7 +110,11 @@
             </template>
             <template v-slot:no-data>
               <div class="q-pa-md text-center">
-                <q-icon name="sentiment_dissatisfied" size="lg" class="q-mr-sm" />
+                <q-icon
+                  name="sentiment_dissatisfied"
+                  size="lg"
+                  class="q-mr-sm"
+                />
                 <div class="text-h6">No hay mantenimientos disponibles</div>
               </div>
             </template>
@@ -134,15 +167,14 @@
                 @click="cancelarAgregarMantenimiento"
                 class="q-mr-sm"
               />
-              <q-btn
-                type="submit"
-                label="Guardar"
-                color="primary"
-              />
+              <q-btn type="submit" label="Guardar" color="primary" />
             </q-form>
           </q-card-section>
         </q-card>
       </q-dialog>
+      <div v-if="useMantenimientos.loading" class="overlay">
+        <q-spinner size="xl" color="primary" />
+      </div>
     </div>
   </div>
 </template>
@@ -164,14 +196,51 @@ const precio_mantenimiento = ref(0);
 const mantenimientoId = ref(null);
 const selectedManId = ref("");
 
+const formatNumber = (number) => {
+  return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+};
+
 const maquinaOptions = ref([]);
 const rows = ref([]);
 const columns = ref([
-  { name: "id_maquina", label: "Código Máquina", align: "center", field: (row) => row.id_maquina.codigo },
-  { name: "fecha_mantenimiento", label: "Fecha de Mantenimiento", align: "center", field: "fecha_mantenimiento" },
-  { name: "descripcion", label: "Descripción", align: "center", field: "descripcion" },
-  { name: "responsable", label: "Responsable", align: "center", field: "responsable" },
-  { name: "precio_mantenimiento", label: "Precio de Mantenimiento", align: "center", field: "precio_mantenimiento" },
+  {
+    name: "id_maquina",
+    label: "Código Máquina",
+    align: "center",
+    field: (row) => row.id_maquina.codigo,
+  },
+  {
+    name: "fecha_mantenimiento",
+    label: "Fecha de Mantenimiento",
+    align: "center",
+    field: "fecha_mantenimiento",
+    format: (val) => {
+      const fecha_mantenimiento = new Date(val);
+      const opcionesFecha = { day: '2-digit', month: '2-digit', year: 'numeric' };
+      const opcionesHora = { hour: '2-digit', minute: '2-digit' };
+      const fechaFormateada = fecha_mantenimiento.toLocaleDateString('es-ES', opcionesFecha);
+      const horaFormateada = fecha_mantenimiento.toLocaleTimeString('es-ES', opcionesHora);
+      return `${fechaFormateada} ${horaFormateada}`;
+    },
+  },
+  {
+    name: "descripcion",
+    label: "Descripción",
+    align: "center",
+    field: "descripcion",
+  },
+  {
+    name: "responsable",
+    label: "Responsable",
+    align: "center",
+    field: "responsable",
+  },
+  {
+    name: "precio_mantenimiento",
+    label: "Precio de Mantenimiento",
+    align: "center",
+     field: (row)=>formatNumber(row.precio_mantenimiento),
+  },
   { name: "estado", label: "Estado", align: "center", field: "estado" },
   { name: "opciones", label: "Opciones", align: "center" },
 ]);
@@ -205,7 +274,6 @@ async function listarMantenimientosInactivos() {
   }
 }
 
-
 async function agregarOEditarMantenimiento() {
   try {
     const data = {
@@ -236,8 +304,8 @@ function cancelarAgregarMantenimiento() {
 }
 
 function editarMantenimiento(mantenimiento) {
-  id_maquina.value = mantenimiento.id_maquina;
-  fecha_mantenimiento.value = mantenimiento.fecha_mantenimiento.split('T')[0];
+  id_maquina.value = mantenimiento.id_maquina.descripcion;
+  fecha_mantenimiento.value = mantenimiento.fecha_mantenimiento.split("T")[0];
   descripcion.value = mantenimiento.descripcion;
   responsable.value = mantenimiento.responsable;
   precio_mantenimiento.value = mantenimiento.precio_mantenimiento;
@@ -256,7 +324,10 @@ async function activarMantenimiento(mantenimiento) {
 
 async function desactivarMantenimiento(mantenimiento) {
   try {
-    await useMantenimientos.toggleEstadoMantenimientos(mantenimiento._id, false);
+    await useMantenimientos.toggleEstadoMantenimientos(
+      mantenimiento._id,
+      false
+    );
     listarMantenimientos();
   } catch (error) {
     console.error(error);
@@ -268,7 +339,7 @@ async function obtenerMaquinas() {
     const res = await useMaquinas.getMaquina();
     maquinaOptions.value = res.maquinas.map((maquina) => {
       return {
-        label: maquina.codigo,
+        label: maquina.descripcion + " - " + maquina.codigo,
         value: maquina._id,
       };
     });
@@ -281,12 +352,13 @@ async function obtenerMaquinas() {
 async function obtenerManPorID(Id) {
   try {
     const mantenimiento = await useMantenimientos.getMantenimientoByMan(Id);
-    rows.value = mantenimiento 
+    rows.value = mantenimiento;
   } catch (error) {
     console.error(error);
   }
 }
 
+listarMantenimientos()
 obtenerMaquinas();
 
 watch(showForm, (newValue) => {
@@ -315,9 +387,23 @@ watch(showForm, (newValue) => {
 }
 
 .q-icon {
-  font-size: 3rem; 
+  font-size: 3rem;
 }
+
 .text-h6 {
-  font-size: 1.5rem; 
+  font-size: 1.5rem;
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
 }
 </style>

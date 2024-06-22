@@ -4,11 +4,13 @@ import { ref } from "vue"
 
 export const useUsuarioStore = defineStore("usuario", () => {
 
-    let token=ref("");
+    let token = ref("");
     let usuario = ref(null);
     const usuarios = ref([]);
+    let loading = ref(false);
 
     let getUsuarios = async () => {
+        loading.value = true;
         try {
             let res = await axios.get("http://localhost:2500/api/usuarios")
             console.log(res);
@@ -17,10 +19,13 @@ export const useUsuarioStore = defineStore("usuario", () => {
         } catch (error) {
             console.log(error);
             return error
+        } finally {
+            loading.value = false;
         }
     }
 
     let getUsuariosActivos = async () => {
+        loading.value = true;
         try {
             let res = await axios.get("http://localhost:2500/api/usuarios/activos")
             usuarios.value = res.data.usuariosActivos || [];
@@ -30,10 +35,13 @@ export const useUsuarioStore = defineStore("usuario", () => {
         } catch (error) {
             console.log(error);
             return error
+        } finally {
+            loading.value = false;
         }
     }
 
     let getUsuariosInactivos = async () => {
+        loading.value = true;
         try {
             let res = await axios.get("http://localhost:2500/api/usuarios/inactivos")
             usuarios.value = res.data.usuariosInactivos || [];
@@ -43,10 +51,13 @@ export const useUsuarioStore = defineStore("usuario", () => {
         } catch (error) {
             console.log(error);
             return error
+        } finally {
+            loading.value = false;
         }
     }
 
     let getUsuarioByID = async (id) => {
+        loading.value = true;
         try {
             let res = await axios.get(`http://localhost:2500/api/usuarios/${id}`, {
                 headers: {
@@ -57,10 +68,13 @@ export const useUsuarioStore = defineStore("usuario", () => {
         } catch (error) {
             console.log(error);
             return error;
+        } finally {
+            loading.value = false;
         }
     }
-    
+
     let login = async (l) => {
+        loading.value = true
         try {
             let req = await axios.post("http://localhost:2500/api/usuarios/login", l)
             console.log(req);
@@ -74,10 +88,13 @@ export const useUsuarioStore = defineStore("usuario", () => {
         } catch (error) {
             console.log(error);
             return false;
+        } finally {
+            loading.value = false;
         }
     }
 
     let postUsuario = async (r) => {
+        loading.value = true;
         try {
             let req = await axios.post("http://localhost:2500/api/usuarios", r, {
                 headers: {
@@ -89,10 +106,13 @@ export const useUsuarioStore = defineStore("usuario", () => {
         } catch (error) {
             console.log(error);
             return error
+        } finally {
+            loading.value = false;
         }
     }
 
     let putUsuario = async (id, data) => {
+        loading.value = true;
         try {
             let req = await axios.put(`http://localhost:2500/api/usuarios/actualizar/${id}`, data, {
                 headers: {
@@ -104,10 +124,13 @@ export const useUsuarioStore = defineStore("usuario", () => {
         } catch (error) {
             console.log(error);
             return error
+        } finally {
+            loading.value = false;
         }
     }
 
     let toggleEstadoUsuario = async (id, activar) => {
+        loading.value = true;
         try {
             const url = activar
                 ? `http://localhost:2500/api/usuarios/activar/${id}`
@@ -122,6 +145,8 @@ export const useUsuarioStore = defineStore("usuario", () => {
         } catch (error) {
             console.log(error);
             return error
+        } finally {
+            loading.value = false;
         }
     }
 
@@ -131,9 +156,9 @@ export const useUsuarioStore = defineStore("usuario", () => {
     }
 
     return {
-        getUsuarios, getUsuariosActivos, getUsuariosInactivos, getUsuarioByID, login, postUsuario, putUsuario, toggleEstadoUsuario, token, usuario, clearUsuario
+        getUsuarios, getUsuariosActivos, getUsuariosInactivos, getUsuarioByID, login, postUsuario, putUsuario, toggleEstadoUsuario, token, usuario, clearUsuario, loading
     }
 },
-{
-    persist:true,
-})
+    {
+        persist: true,
+    })
