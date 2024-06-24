@@ -24,31 +24,37 @@
 <script setup>
 import { ref } from "vue";
 import { Notify } from "quasar";
+import { useUsuarioStore } from "../stores/usuarios";
 
 const email = ref("");
+const usuarioStore = useUsuarioStore();
 
 const requiredRule = (value) => !!value || "Este campo es requerido";
 
-function enviarCorreo() {
+async function enviarCorreo() {
   if (!email.value) {
     mostrarNotificacion("Por favor, ingrese su correo electrónico.", "negative");
     return;
   }
-  // Validación simple para verificar si el formato del correo es válido
   if (!isValidEmailFormat(email.value)) {
     mostrarNotificacion("El formato del correo electrónico no es válido.", "negative");
     return;
   }
 
-  Notify.create({
-    message: `Correo de recuperación enviado a ${email.value}`,
-    color: "positive",
-    position: "top",
-  });
-  
+  try {
+    await usuarioStore.forgotPassword(email.value);
+    Notify.create({
+      message: `Correo de recuperación enviado a ${email.value}`,
+      color: "positive",
+      position: "top",
+    });
+    email.value = "";
+  } catch (error) {
+    mostrarNotificacion("Error al enviar el correo de recuperación.", "negative");
+  }
 }
-function isValidEmailFormat(email) {
 
+function isValidEmailFormat(email) {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
 }
@@ -93,7 +99,6 @@ function mostrarNotificacion(mensaje, color = "negative") {
   margin-top: 20px;
 }
 </style>
-
 
 
 

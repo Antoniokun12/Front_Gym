@@ -54,7 +54,8 @@ const routes = [
   {
     path: '/reset-password',
     name: 'Cambiarpassword',
-    component: Cambiarpassword
+    component: Cambiarpassword,
+    props: route => ({ token: route.query.token })
   },
   {
     path: '/home',

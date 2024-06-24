@@ -150,13 +150,54 @@ export const useUsuarioStore = defineStore("usuario", () => {
         }
     }
 
+    let forgotPassword = async (email) => {
+        loading.value = true;
+        try {
+            let req = await axios.post("http://localhost:2500/api/usuarios/forgot-password", { email });
+            console.log(req);
+            return req.data;
+        } catch (error) {
+            console.log(error);
+            return error;
+        } finally {
+            loading.value = false;
+        }
+    }
+
+    let resetPassword = async (token, newPassword, confirmPassword ) => {
+        loading.value = true;
+        try {
+            let req = await axios.post(`http://localhost:2500/api/usuarios/reset-password/${token}`, { newPassword, confirmPassword });
+            console.log(req);
+            return req.data;
+        } catch (error) {
+            console.log(error);
+            return error;
+        } finally {
+            loading.value = false;
+        }
+    }
+
     const clearUsuario = () => {
         usuario.value = null;
         token.value = null;
     }
 
     return {
-        getUsuarios, getUsuariosActivos, getUsuariosInactivos, getUsuarioByID, login, postUsuario, putUsuario, toggleEstadoUsuario, token, usuario, clearUsuario, loading
+        getUsuarios,
+        getUsuariosActivos,
+        getUsuariosInactivos,
+        getUsuarioByID,
+        login,
+        postUsuario,
+        putUsuario,
+        toggleEstadoUsuario,
+        token,
+        usuario,
+        clearUsuario,
+        forgotPassword,
+        resetPassword,
+        loading
     }
 },
     {

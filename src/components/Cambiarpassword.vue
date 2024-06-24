@@ -3,7 +3,7 @@
     <div class="reset-password-background"></div>
     <div class="reset-password-form">
       <h2 class="form-title">Restablecer contraseña</h2>
-      <q-form @submit.prevent="resetPassword">
+      <q-form @submit.prevent="handleSubmit">
         <q-input
           filled
           class="input"
@@ -33,11 +33,33 @@
 <script setup>
 import { ref } from "vue";
 import { Notify } from "quasar";
+import { useUsuarioStore } from '../stores/usuarios';
+import { useRoute } from 'vue-router';
 
+const route = useRoute();
+const token = ref(route.query.token); // Captura el token desde la URL
 const newPassword = ref("");
 const confirmPassword = ref("");
 
-function resetPassword() {
+function mostrarNotificacion(mensaje, color = "negative") {
+  Notify.create({
+    message: mensaje,
+    color: color,
+    position: "top",
+    icon: "sentiment_dissatisfied"
+  });
+}
+
+async function resetPassword(token, newPassword, confirmPassword) {
+  try {
+    const response = await useUsuarioStore().resetPassword(token, newPassword, confirmPassword);
+    return response;
+  } catch (error) {
+    throw error;
+  }
+}
+
+function handleSubmit() {
   if (!newPassword.value || !confirmPassword.value) {
     mostrarNotificacion("Por favor, complete todos los campos.", "negative");
     return;
@@ -48,27 +70,25 @@ function resetPassword() {
     return;
   }
 
-
-
-  // Simulación de éxito
-  Notify.create({
-    message: "Contraseña restablecida exitosamente.",
-    color: "positive",
-    position: "top"
-  });
-
- 
-  newPassword.value = "";
-  confirmPassword.value = "";
-}
-
-function mostrarNotificacion(mensaje, color = "negative") {
-  Notify.create({
-    message: mensaje,
-    color: color,
-    position: "top",
-    icon: "sentiment_dissatisfied"
-  });
+  resetPassword(token.value, newPassword.value, confirmPassword.value)
+    .then(response => {
+      if (response.status === 200) {
+        Notify.create({
+          message: "Contraseña restablecida exitosamente.",
+          color: "positive",
+          position: "top",
+        });
+        newPassword.value = "";
+        confirmPassword.value = "";
+      } else {
+        mostrarNotificacion("contraseña restablecida existosamente.", "positive");
+        newPassword.value = "";
+        confirmPassword.value = "";
+      }
+    })
+    .catch(error => {
+      mostrarNotificacion("Error al restablecer la contraseña.", "negative");
+    });
 }
 </script>
 
