@@ -25,7 +25,7 @@ export default defineConfig({
     // Proxy para manejar solicitudes a tu backend en desarrollo y producción
     proxy: {
       '/api': {
-        target: process.env.VITE_BACKEND_URL, // URL del backend en Render
+        target: import.meta.env.VITE_BACKEND_URL, // URL del backend en Render
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, '')
       }

@@ -5,7 +5,7 @@ import { useUsuarioStore } from "../stores/usuarios.js"
 
 export const usePagoStore = defineStore("pago", () => {
 
-    const baseUrl = process.env.VITE_BACKEND_URL;
+    const baseUrl = import.meta.env.VITE_BACKEND_URL;
 
     const useUsuario = useUsuarioStore();
 

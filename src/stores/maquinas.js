@@ -6,7 +6,7 @@ import { Notify } from "quasar";
 
 export const useMaquinaStore = defineStore("maquina", () => {
 
-    const baseUrl = process.env.VITE_BACKEND_URL;
+    const baseUrl = import.meta.env.VITE_BACKEND_URL;
 
     const useUsuario = useUsuarioStore();
 

@@ -6,7 +6,7 @@ import { useUsuarioStore } from "../stores/usuarios.js"
 
 export const usePlanStore = defineStore("plan", () => {
 
-    const baseUrl = process.env.VITE_BACKEND_URL;
+    const baseUrl = import.meta.env.VITE_BACKEND_URL;
 
     const useUsuario = useUsuarioStore();
     const planes = ref([]);
