@@ -91,11 +91,7 @@ export const useUsuarioStore = defineStore("usuario", () => {
     let login = async (l) => {
         loading.value = true
         try {
-            let req = await axios.post(`${baseUrl}/api/usuarios/login`, l, {
-                headers: {
-                    "x-token": token.value,
-                },
-            });
+            let req = await axios.post(`${baseUrl}/api/usuarios/login`, l);
             console.log(req);
             if (req.status === 200) {
                 token.value = req.data.token;
