@@ -23,11 +23,11 @@ const auth = (to, from, next) => {
       const rol = userUsuario.usuario.rol
       console.log(rol);
       if (!to.meta.rol.includes(rol)) {
-          return next({ name: 'login' })
+          return next({ name: 'Inicio' })
       }
       next()
   } else {
-      return next({ name: 'login' })
+      return next({ name: 'Inicio' })
   }
 }
 
@@ -69,7 +69,8 @@ const routes = [
       {
         path: '/usuarios',
         name: 'Usuarios',
-        component: Usuarios
+        component: Usuarios,
+        beforeEnter: auth, meta: { rol: ['Administrador'] }
       },
       {
         path: '/ingresos',

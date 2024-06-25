@@ -1,8 +1,11 @@
 import { defineStore } from "pinia"
 import axios from "axios"
 import { ref } from "vue"
+import { useUsuarioStore } from "../stores/usuarios.js"
 
 export const useVentaStore = defineStore("venta", () => {
+
+    const useUsuario = useUsuarioStore();
 
     const ventas = ref([]);
     let loading = ref(false);
@@ -10,7 +13,11 @@ export const useVentaStore = defineStore("venta", () => {
     let getVentas = async () => {
         loading.value = true;
         try {
-            let res = await axios.get("http://localhost:2500/api/ventas")
+            let res = await axios.get("http://localhost:2500/api/ventas", {
+                headers: {
+                    "x-token": useUsuario.token,
+                },
+            });
             console.log(res);
             return res.data
 
@@ -25,7 +32,11 @@ export const useVentaStore = defineStore("venta", () => {
     let getVentasActivos = async () => {
         loading.value = true;
         try {
-            let res = await axios.get("http://localhost:2500/api/ventas/activos")
+            let res = await axios.get("http://localhost:2500/api/ventas/activos", {
+                headers: {
+                    "x-token": useUsuario.token,
+                },
+            });
             ventas.value = res.data.ventasActivos || [];
             console.log(res);
             return res.data
@@ -41,7 +52,11 @@ export const useVentaStore = defineStore("venta", () => {
     let getVentasInactivos = async () => {
         loading.value = true;
         try {
-            let res = await axios.get("http://localhost:2500/api/ventas/inactivos")
+            let res = await axios.get("http://localhost:2500/api/ventas/inactivos", {
+                headers: {
+                    "x-token": useUsuario.token,
+                },
+            });
             ventas.value = res.data.ventasInactivos || [];
             console.log(res);
             return res.data
@@ -57,7 +72,11 @@ export const useVentaStore = defineStore("venta", () => {
     let postVentas = async (venta) => {
         loading.value = true;
         try {
-            let req = await axios.post("http://localhost:2500/api/ventas", venta);
+            let req = await axios.post("http://localhost:2500/api/ventas", venta, {
+                headers: {
+                    "x-token": useUsuario.token,
+                },
+            });
             return req.data;
 
         } catch (error) {
@@ -71,7 +90,11 @@ export const useVentaStore = defineStore("venta", () => {
     let putVentas = async (id, venta) => {
         loading.value = true;
         try {
-            let req = await axios.put(`http://localhost:2500/api/ventas/actualizar/${id}`, venta);
+            let req = await axios.put(`http://localhost:2500/api/ventas/actualizar/${id}`, venta, {
+                headers: {
+                    "x-token": useUsuario.token,
+                },
+            });
             return req.data;
 
         } catch (error) {

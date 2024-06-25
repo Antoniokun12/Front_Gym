@@ -1,8 +1,11 @@
 import { defineStore } from "pinia"
 import axios from "axios"
 import { ref } from "vue"
+import { useUsuarioStore } from "../stores/usuarios.js"
 
 export const useInventarioStore = defineStore("inventario", () => {
+
+    const useUsuario = useUsuarioStore();
 
     const inventarios = ref([]);
     let loading = ref(false);
@@ -10,7 +13,11 @@ export const useInventarioStore = defineStore("inventario", () => {
     let getInventario = async () => {
         loading.value = true;
         try {
-            let res = await axios.get("http://localhost:2500/api/inventario")
+            let res = await axios.get("http://localhost:2500/api/inventario", {
+                headers: {
+                    "x-token": useUsuario.token,
+                },
+            });
             console.log(res);
             return res.data
 
@@ -25,7 +32,11 @@ export const useInventarioStore = defineStore("inventario", () => {
     let getInventarioActivos = async () => {
         loading.value = true;
         try {
-            let res = await axios.get("http://localhost:2500/api/inventario/activos")
+            let res = await axios.get("http://localhost:2500/api/inventario/activos", {
+                headers: {
+                    "x-token": useUsuario.token,
+                },
+            });
             inventarios.value = res.data.inventariosActivos || [];
             console.log(res);
             return res.data
@@ -41,7 +52,11 @@ export const useInventarioStore = defineStore("inventario", () => {
     let getInventarioInactivos = async () => {
         loading.value = true;
         try {
-            let res = await axios.get("http://localhost:2500/api/inventario/inactivos")
+            let res = await axios.get("http://localhost:2500/api/inventario/inactivos", {
+                headers: {
+                    "x-token": useUsuario.token,
+                },
+            });
             inventarios.value = res.data.inventariosInactivos || [];
             console.log(res);
             return res.data
@@ -57,7 +72,11 @@ export const useInventarioStore = defineStore("inventario", () => {
     let getInventarioByID = async (id) => {
         loading.value = true;
         try {
-            let res = await axios.get(`http://localhost:2500/api/inventario/${id}`);
+            let res = await axios.get(`http://localhost:2500/api/inventario/${id}`, {
+                headers: {
+                    "x-token": useUsuario.token,
+                },
+            });
             return res.data.inventario;
         } catch (error) {
             console.log(error);
@@ -71,7 +90,11 @@ export const useInventarioStore = defineStore("inventario", () => {
     let postInventario = async (inventario) => {
         loading.value = true;
         try {
-            let req = await axios.post("http://localhost:2500/api/inventario", inventario);
+            let req = await axios.post("http://localhost:2500/api/inventario", inventario, {
+                headers: {
+                    "x-token": useUsuario.token,
+                },
+            });
             return req.data;
 
         } catch (error) {
@@ -85,7 +108,11 @@ export const useInventarioStore = defineStore("inventario", () => {
     let putInventario = async (id, inventario) => {
         loading.value = true;
         try {
-            let req = await axios.put(`http://localhost:2500/api/inventario/actualizar/${id}`, inventario);
+            let req = await axios.put(`http://localhost:2500/api/inventario/actualizar/${id}`, inventario, {
+                headers: {
+                    "x-token": useUsuario.token,
+                },
+            });
             return req.data;
 
         } catch (error) {

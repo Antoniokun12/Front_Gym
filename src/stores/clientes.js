@@ -14,7 +14,11 @@ export const useClienteStore = defineStore("cliente", () => {
     let getClientes = async () => {
         loading.value = true;
         try {
-            let res = await axios.get("http://localhost:2500/api/clientes")
+            let res = await axios.get("http://localhost:2500/api/clientes", {
+                headers: {
+                    "x-token": useUsuario.token,
+                },
+            });
             console.log(res);
             return res.data
 
@@ -29,7 +33,11 @@ export const useClienteStore = defineStore("cliente", () => {
     let getClientesActivos = async () => {
         loading.value = true;
         try {
-            let res = await axios.get("http://localhost:2500/api/clientes/activos")
+            let res = await axios.get("http://localhost:2500/api/clientes/activos", {
+                headers: {
+                    "x-token": useUsuario.token,
+                },
+            });
             clientes.value = res.data.clientesActivos || [];
             console.log(res);
             return res.data
@@ -45,7 +53,11 @@ export const useClienteStore = defineStore("cliente", () => {
     let getClientesInactivos = async () => {
         loading.value = true;
         try {
-            let res = await axios.get("http://localhost:2500/api/clientes/inactivos")
+            let res = await axios.get("http://localhost:2500/api/clientes/inactivos", {
+                headers: {
+                    "x-token": useUsuario.token,
+                },
+            });
             clientes.value = res.data.clientesInactivos || [];
             console.log(res);
             return res.data
@@ -61,7 +73,11 @@ export const useClienteStore = defineStore("cliente", () => {
     let getClienteByID = async (id) => {
         loading.value = true;
         try {
-            let res = await axios.get(`http://localhost:2500/api/clientes/${id}`);
+            let res = await axios.get(`http://localhost:2500/api/clientes/${id}`, {
+                headers: {
+                    "x-token": useUsuario.token,
+                },
+            });
             return res.data.cliente;
         } catch (error) {
             console.log(error);
@@ -92,7 +108,11 @@ export const useClienteStore = defineStore("cliente", () => {
     let addSeguimiento = async (clienteId, seguimiento) => {
         loading.value = true;
         try {
-            await axios.post(`http://localhost:2500/api/clientes/${clienteId}/seguimiento`, { seguimiento });
+            await axios.post(`http://localhost:2500/api/clientes/${clienteId}/seguimiento`, { seguimiento }, {
+                headers: {
+                    "x-token": useUsuario.token,
+                },
+            });
         } catch (error) {
             console.error('Error al agregar seguimiento:', error);
             throw error;
@@ -105,7 +125,11 @@ export const useClienteStore = defineStore("cliente", () => {
         loading.value = true;
         try {
             console.log('ID del seguimiento a editar:', id); 
-            await axios.put(`http://localhost:2500/api/clientes/seguimiento/${id}`, updateseguimiento); 
+            await axios.put(`http://localhost:2500/api/clientes/seguimiento/${id}`, updateseguimiento, {
+                headers: {
+                    "x-token": useUsuario.token,
+                },
+            });
         } catch (error) {
             throw error;
         } finally {
@@ -117,7 +141,11 @@ export const useClienteStore = defineStore("cliente", () => {
     let putCliente = async (id, cliente) => {
         loading.value = true;
         try {
-            let req = await axios.put(`http://localhost:2500/api/clientes/actualizar/${id}`, cliente);
+            let req = await axios.put(`http://localhost:2500/api/clientes/actualizar/${id}`, cliente, {
+                headers: {
+                    "x-token": useUsuario.token,
+                },
+            });
             return req.data;
 
         } catch (error) {
@@ -134,7 +162,7 @@ export const useClienteStore = defineStore("cliente", () => {
             const url = activar
                 ? `http://localhost:2500/api/clientes/activar/${id}`
                 : `http://localhost:2500/api/clientes/desactivar/${id}`;
-            let req = await axios.put(url);
+            let req = await axios.put(url)
             return req.data;
 
         } catch (error) {

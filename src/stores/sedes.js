@@ -1,8 +1,11 @@
 import { defineStore } from "pinia"
 import axios from "axios"
 import { ref } from "vue"
+import { useUsuarioStore } from "../stores/usuarios.js"
 
 export const useSedeStore = defineStore("sede", () => {
+
+    const useUsuario = useUsuarioStore();
 
     const sedes = ref([]);
     let loading = ref(false);
@@ -10,7 +13,11 @@ export const useSedeStore = defineStore("sede", () => {
     let getSedes = async () => {
         loading.value = true;
         try {
-            let res = await axios.get("http://localhost:2500/api/sedes")
+            let res = await axios.get("http://localhost:2500/api/sedes", {
+                headers: {
+                    "x-token": useUsuario.token,
+                },
+            });
             console.log(res);
             return res.data
 
@@ -25,7 +32,11 @@ export const useSedeStore = defineStore("sede", () => {
     let getSedesActivos = async () => {
         loading.value = true;
         try {
-            let res = await axios.get("http://localhost:2500/api/sedes/activos")
+            let res = await axios.get("http://localhost:2500/api/sedes/activos", {
+                headers: {
+                    "x-token": useUsuario.token,
+                },
+            });
             sedes.value = res.data.sedesActivos || [];
             console.log(res);
             return res.data
@@ -41,7 +52,11 @@ export const useSedeStore = defineStore("sede", () => {
     let getSedesInactivos = async () => {
         loading.value = true;
         try {
-            let res = await axios.get("http://localhost:2500/api/sedes/inactivos")
+            let res = await axios.get("http://localhost:2500/api/sedes/inactivos", {
+                headers: {
+                    "x-token": useUsuario.token,
+                },
+            });
             sedes.value = res.data.sedesInactivos || [];
             console.log(res);
             return res.data
@@ -57,7 +72,11 @@ export const useSedeStore = defineStore("sede", () => {
     let getSedeByID = async (id) => {
         loading.value = true;
         try {
-            let res = await axios.get(`http://localhost:2500/api/sedes/${id}`);
+            let res = await axios.get(`http://localhost:2500/api/sedes/${id}`, {
+                headers: {
+                    "x-token": useUsuario.token,
+                },
+            });
             return res.data.sede;
         } catch (error) {
             console.log(error);
@@ -70,7 +89,11 @@ export const useSedeStore = defineStore("sede", () => {
     let postSedes = async (r) => {
         loading.value = true;
         try {
-            let req = await axios.post("http://localhost:2500/api/sedes", r );
+            let req = await axios.post("http://localhost:2500/api/sedes", r , {
+                headers: {
+                    "x-token": useUsuario.token,
+                },
+            });
             return req.data;
 
         } catch (error) {
@@ -84,7 +107,11 @@ export const useSedeStore = defineStore("sede", () => {
     let putSedes = async (id, data) => {
         loading.value = true;
         try {
-            let req = await axios.put(`http://localhost:2500/api/sedes/actualizar/${id}`, data );
+            let req = await axios.put(`http://localhost:2500/api/sedes/actualizar/${id}`, data , {
+                headers: {
+                    "x-token": useUsuario.token,
+                },
+            });
             return req.data;
 
         } catch (error) {

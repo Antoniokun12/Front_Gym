@@ -1,8 +1,11 @@
 import { defineStore } from "pinia"
 import axios from "axios"
 import { ref } from "vue"
+import { useUsuarioStore } from "../stores/usuarios.js"
 
 export const useMantenimentosStore = defineStore("mantenimientos", () => {
+
+    const useUsuario = useUsuarioStore();
 
     const mantenimientos = ref([]);
     let loading = ref(false);
@@ -10,7 +13,11 @@ export const useMantenimentosStore = defineStore("mantenimientos", () => {
     let getMantenimientos = async () => {
         loading.value = true;
         try {
-            let res = await axios.get("http://localhost:2500/api/mantenimientos")
+            let res = await axios.get("http://localhost:2500/api/mantenimientos", {
+                headers: {
+                    "x-token": useUsuario.token,
+                },
+            });
             console.log(res);
             return res.data
 
@@ -25,7 +32,11 @@ export const useMantenimentosStore = defineStore("mantenimientos", () => {
     let getMantenimientosActivos = async () => {
         loading.value = true;
         try {
-            let res = await axios.get("http://localhost:2500/api/mantenimientos/activos")
+            let res = await axios.get("http://localhost:2500/api/mantenimientos/activos", {
+                headers: {
+                    "x-token": useUsuario.token,
+                },
+            });
             mantenimientos.value = res.data.mantenimientosActivos || [];
             console.log(res);
             return res.data
@@ -41,7 +52,11 @@ export const useMantenimentosStore = defineStore("mantenimientos", () => {
     let getMantenimientosInactivos = async () => {
         loading.value = true;
         try {
-            let res = await axios.get("http://localhost:2500/api/mantenimientos/inactivos")
+            let res = await axios.get("http://localhost:2500/api/mantenimientos/inactivos", {
+                headers: {
+                    "x-token": useUsuario.token,
+                },
+            });
             mantenimientos.value = res.data.mantenimientosInactivos || [];
             console.log(res);
             return res.data
@@ -57,7 +72,11 @@ export const useMantenimentosStore = defineStore("mantenimientos", () => {
     let getMantenimientoByMan = async (id) => {
         loading.value = true;
         try {
-            let res = await axios.get(`http://localhost:2500/api/mantenimientos/maquina/${id}`);
+            let res = await axios.get(`http://localhost:2500/api/mantenimientos/maquina/${id}`, {
+                headers: {
+                    "x-token": useUsuario.token,
+                },
+            });
             return res.data.mantenimiento;
         } catch (error) {
             console.log(error);
@@ -70,7 +89,11 @@ export const useMantenimentosStore = defineStore("mantenimientos", () => {
     let postMantenimientos = async (mantenimiento) => {
         loading.value = true;
         try {
-            let req = await axios.post("http://localhost:2500/api/mantenimientos", mantenimiento);
+            let req = await axios.post("http://localhost:2500/api/mantenimientos", mantenimiento, {
+                headers: {
+                    "x-token": useUsuario.token,
+                },
+            });
             return req.data;
 
         } catch (error) {
@@ -84,7 +107,11 @@ export const useMantenimentosStore = defineStore("mantenimientos", () => {
     let putMantenimientos = async (id, mantenimiento) => {
         loading.value = true;
         try {
-            let req = await axios.put(`http://localhost:2500/api/mantenimientos/actualizar/${id}`, mantenimiento);
+            let req = await axios.put(`http://localhost:2500/api/mantenimientos/actualizar/${id}`, mantenimiento, {
+                headers: {
+                    "x-token": useUsuario.token,
+                },
+            });
             return req.data;
 
         } catch (error) {

@@ -155,8 +155,16 @@
     <div v-if="clienteSeleccionado" class="q-pa-md seguimiento-table">
       <q-card>
         <q-card-section>
-          <div class="text-h6">
-            Seguimientos de {{ clienteSeleccionado.nombre }}
+          <div class="q-pa-md text-center cliente-header">
+            <div class="text-h3 cliente-info">
+              <img
+                :src="clienteSeleccionado.foto"
+                alt="Foto Cliente"
+                class="cliente-foto"
+              />
+              Seguimientos de {{ clienteSeleccionado.nombre }}
+            </div>
+            <!-- Otros elementos del encabezado -->
           </div>
           <q-btn
             flat
@@ -176,6 +184,12 @@
             square
             no-data-label="no hay seguimientos disponibles"
           >
+            <template v-slot:body-cell-imc="props">
+              <q-td :props="props" :style="getIMCCellStyle(props.row.imc)">
+                {{ props.row.imc.toFixed(1) }} -
+                {{ obtenerEstadoIMC(props.row.imc).estado }}
+              </q-td>
+            </template>
             <template v-slot:body-cell-editar="props">
               <q-td :props="props">
                 <q-btn
@@ -269,6 +283,7 @@
                 type="date"
                 required
               />
+              <q-input v-model="cliente.foto" label="Url de la foto" required />
               <q-input v-model="cliente.documento" label="Documento" required />
               <q-input v-model="cliente.direccion" label="Dirección" required />
               <q-input v-model="cliente.telefono" label="Teléfono" required />
@@ -382,10 +397,8 @@ const showSeguimientoForm = ref(false);
 
 const planesOptions = ref([]);
 const selectedClieId = ref("");
- 
+
 const edad = ref("");
-
-
 
 const seguimientoEditado = ref({
   fecha: "",
@@ -402,6 +415,7 @@ const fecha = ref("");
 const cliente = ref({
   nombre: "",
   fecha_nacimiento: "",
+  foto: "",
   documento: "",
   direccion: "",
   telefono: "",
@@ -530,18 +544,66 @@ const columns = ref([
   { name: "opciones", label: "Opciones", align: "center", field: "opciones" },
 ]);
 
+function obtenerEstadoIMC(imc) {
+  if (imc < 18.5) {
+    return { estado: "Bajo Peso", color: "#00BFFF" }; // Azul
+  } else if (imc >= 18.5 && imc < 24.9) {
+    return { estado: "Normal", color: "#00FF00" }; // Verde
+  } else if (imc >= 25 && imc < 29.9) {
+    return { estado: "Sobrepeso", color: "#FFFF00" }; // Amarillo
+  } else if (imc >= 30 && imc < 34.9) {
+    return { estado: "Obesidad I", color: "#FFA500" }; // Naranja
+  } else if (imc >= 35 && imc < 39.9) {
+    return { estado: "Obesidad II", color: "#FF4500" }; // Naranja oscuro
+  } else {
+    return { estado: "Obesidad III", color: "#FF0000" }; // Rojo
+  }
+}
+
+function getIMCCellStyle(imc) {
+  const { color } = obtenerEstadoIMC(imc);
+  return {
+    backgroundColor: color,
+    color: "#000000",
+    padding: "10px",
+  };
+}
+
 const seguimientoColumns = ref([
-  { name: "fecha", label: "Fecha", align: "center", field: "fecha", format: (val) => {
+  {
+    name: "fecha",
+    label: "Fecha",
+    align: "center",
+    field: "fecha",
+    format: (val) => {
       const fecha = new Date(val);
-      const opcionesFecha = { day: '2-digit', month: '2-digit', year: 'numeric' };
-      const opcionesHora = { hour: '2-digit', minute: '2-digit' };
-      const fechaFormateada = fecha.toLocaleDateString('es-ES', opcionesFecha);
-      const horaFormateada = fecha.toLocaleTimeString('es-ES', opcionesHora);
+      const opcionesFecha = {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      };
+      const opcionesHora = { hour: "2-digit", minute: "2-digit" };
+      const fechaFormateada = fecha.toLocaleDateString("es-ES", opcionesFecha);
+      const horaFormateada = fecha.toLocaleTimeString("es-ES", opcionesHora);
       return `${fechaFormateada} ${horaFormateada}`;
-    }, },
+    },
+  },
   { name: "peso", label: "Peso", align: "center", field: "peso" },
   { name: "altura", label: "Altura", align: "center", field: "altura" },
-  { name: "imc", label: "IMC", align: "center", field: "imc" },
+  {
+    name: "imc",
+    label: "IMC",
+    align: "center",
+    field: "imc",
+    format: (val) => {
+      const { estado } = obtenerEstadoIMC(val);
+      return `${val.toFixed(1)} - ${estado}`;
+    },
+    style: (row) => {
+      const { color } = obtenerEstadoIMC(row.imc);
+      return `background-color: ${color}; color: #ffffff;`;
+    },
+  },
   {
     name: "medida_brazo",
     label: "Medida Brazo",
@@ -661,16 +723,21 @@ function editarCliente(clienteData) {
   cliente.value = { ...clienteData };
   clienteId.value = clienteData._id;
 
-  cliente.value.fecha_nacimiento = new Date(clienteData.fecha_nacimiento).toISOString().split('T')[0];
-  
+  cliente.value.fecha_nacimiento = new Date(clienteData.fecha_nacimiento)
+    .toISOString()
+    .split("T")[0];
+
   // Asegúrate de que clienteData.id_plan sea un valor primitivo (string o number)
-  const idPlan = typeof clienteData.id_plan === 'object' ? clienteData.id_plan._id : clienteData.id_plan;
+  const idPlan =
+    typeof clienteData.id_plan === "object"
+      ? clienteData.id_plan._id
+      : clienteData.id_plan;
 
   // Busca el plan correspondiente en planesOptions
   const planSeleccionado = planesOptions.value.find(
     (plan) => plan.value === idPlan
   );
-  
+
   // Si el plan fue encontrado, asigna el plan al cliente
   if (planSeleccionado) {
     cliente.value.id_plan = planSeleccionado.value;
@@ -678,11 +745,10 @@ function editarCliente(clienteData) {
     // Si no se encuentra el plan, puedes manejar el error aquí
     console.warn(`Plan con id ${idPlan} no encontrado`);
   }
-  
+
   // Muestra el formulario de edición
   showForm.value = true;
 }
-
 
 function verSeguimientos(clienteData) {
   clienteSeleccionado.value = clienteData;
@@ -732,50 +798,44 @@ async function obtenerClientePorID(ClieId) {
     console.error(error);
   }
 }
- 
-
 
 const cancelarEdicionSeguimiento = () => {
   seguimientoEditado.value = null;
   showEditarSeguimientoForm.value = false;
 };
 
-
 const editarSeguimiento = (seguimiento) => {
   if (!seguimiento || !seguimiento._id) {
-    console.error('Seguimiento no definido o sin ID');
+    console.error("Seguimiento no definido o sin ID");
     return;
   }
 
   // Asignar el seguimiento a editar
   seguimientoEditado.value = {
     ...seguimiento,
-    fecha: seguimiento.fecha ? new Date(seguimiento.fecha).toISOString().substring(0, 10) : '',
+    fecha: seguimiento.fecha
+      ? new Date(seguimiento.fecha).toISOString().substring(0, 10)
+      : "",
     _id: seguimiento._id, // Asegurarse de que se utilice el _id del seguimiento
   };
 
-  console.log('Seguimiento a editar:', seguimientoEditado.value);
+  console.log("Seguimiento a editar:", seguimientoEditado.value);
   showEditarSeguimientoForm.value = true;
 };
-
-  
-
-
-
 
 const guardarSeguimientoEditado = async () => {
   try {
     // Verificar que el cliente seleccionado y el seguimiento editado tienen IDs definidos
     if (!clienteSeleccionado.value || !clienteSeleccionado.value._id) {
-      throw new Error('ID de cliente no definido');
+      throw new Error("ID de cliente no definido");
     }
 
     if (!seguimientoEditado.value || !seguimientoEditado.value._id) {
-      throw new Error('ID de seguimiento no definido');
+      throw new Error("ID de seguimiento no definido");
     }
 
     // Mostrar en consola el seguimiento a editar antes de la solicitud HTTP
-    console.log('Seguimiento a editar:', seguimientoEditado.value);
+    console.log("Seguimiento a editar:", seguimientoEditado.value);
 
     // Preparar el objeto de datos para enviar al backend
     const datosActualizados = {
@@ -787,31 +847,23 @@ const guardarSeguimientoEditado = async () => {
         imc: parseFloat(seguimientoEditado.value.imc),
         medida_brazo: parseFloat(seguimientoEditado.value.medida_brazo),
         medida_pierna: parseFloat(seguimientoEditado.value.medida_pierna),
-        medida_cintura: parseFloat(seguimientoEditado.value.medida_cintura)
-      }
+        medida_cintura: parseFloat(seguimientoEditado.value.medida_cintura),
+      },
     };
-
 
     await useClientes.editarSeguimiento(
       clienteSeleccionado.value._id,
       datosActualizados
     );
 
-
     showEditarSeguimientoForm.value = false;
     seguimientoEditado.value = null;
 
-  
-    listarClientes(); 
-
+    listarClientes();
   } catch (error) {
-    console.error('Error al guardar seguimiento editado:', error);
-    
+    console.error("Error al guardar seguimiento editado:", error);
   }
 };
-
-
-
 
 obtenerPlanes();
 
@@ -864,6 +916,7 @@ listarClientes();
 .q-icon {
   font-size: 3rem;
 }
+
 .text-h6 {
   font-size: 1.5rem;
 }
@@ -879,6 +932,26 @@ listarClientes();
   justify-content: center;
   align-items: center;
   z-index: 9999;
+}
+
+.cliente-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%; /* Ajusta la altura según tus necesidades */
+}
+
+.cliente-info {
+  display: flex;
+  align-items: center;
+}
+
+.cliente-foto {
+  width: 150px; /* Ajusta el tamaño de la imagen según tus necesidades */
+  height: 150px;
+  border-radius: 50%; /* Para hacer la imagen redonda */
+  margin-right: 10px; /* Espacio entre la imagen y el texto */
 }
 </style>
 

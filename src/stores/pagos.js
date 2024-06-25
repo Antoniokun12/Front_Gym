@@ -1,8 +1,11 @@
 import { defineStore } from "pinia"
 import axios from "axios"
 import { ref } from "vue"
+import { useUsuarioStore } from "../stores/usuarios.js"
 
 export const usePagoStore = defineStore("pago", () => {
+
+    const useUsuario = useUsuarioStore();
 
     const pagos = ref([]);
     let loading = ref(false);
@@ -10,7 +13,11 @@ export const usePagoStore = defineStore("pago", () => {
     let getPagos = async () => {
         loading.value = true;
         try {
-            let res = await axios.get("http://localhost:2500/api/pagos")
+            let res = await axios.get("http://localhost:2500/api/pagos", {
+                headers: {
+                    "x-token": useUsuario.token,
+                },
+            });
             console.log(res);
             return res.data
 
@@ -25,7 +32,11 @@ export const usePagoStore = defineStore("pago", () => {
     let getPagosActivos = async () => {
         loading.value = true;
         try {
-            let res = await axios.get("http://localhost:2500/api/pagos/activos")
+            let res = await axios.get("http://localhost:2500/api/pagos/activos", {
+                headers: {
+                    "x-token": useUsuario.token,
+                },
+            });
             pagos.value = res.data.pagosActivos || [];
             console.log(res);
             return res.data
@@ -41,7 +52,11 @@ export const usePagoStore = defineStore("pago", () => {
     let getPagosInactivos = async () => {
         loading.value = true;
         try {
-            let res = await axios.get("http://localhost:2500/api/pagos/inactivos")
+            let res = await axios.get("http://localhost:2500/api/pagos/inactivos", {
+                headers: {
+                    "x-token": useUsuario.token,
+                },
+            });
             pagos.value = res.data.pagosInactivos || [];
             console.log(res);
             return res.data
@@ -57,7 +72,11 @@ export const usePagoStore = defineStore("pago", () => {
     let getPagosByID = async (id) => {
         loading.value = true;
         try {
-            let res = await axios.get(`http://localhost:2500/api/pagos/pagosx/cliente/${id}`);
+            let res = await axios.get(`http://localhost:2500/api/pagos/pagosx/cliente/${id}`, {
+                headers: {
+                    "x-token": useUsuario.token,
+                },
+            });
             return res.data.pagos;
         } catch (error) {
             console.log(error);
@@ -70,7 +89,11 @@ export const usePagoStore = defineStore("pago", () => {
     let postPagos = async (pago) => {
         loading.value = true;
         try {
-            let req = await axios.post("http://localhost:2500/api/pagos", pago);
+            let req = await axios.post("http://localhost:2500/api/pagos", pago, {
+                headers: {
+                    "x-token": useUsuario.token,
+                },
+            });
             return req.data;
 
         } catch (error) {
@@ -84,7 +107,11 @@ export const usePagoStore = defineStore("pago", () => {
     let putPagos = async (id, pago) => {
         loading.value = true;
         try {
-            let req = await axios.put(`http://localhost:2500/api/pagos/actualizar/${id}`, pago);
+            let req = await axios.put(`http://localhost:2500/api/pagos/actualizar/${id}`, pago, {
+                headers: {
+                    "x-token": useUsuario.token,
+                },
+            });
             return req.data;
 
         } catch (error) {

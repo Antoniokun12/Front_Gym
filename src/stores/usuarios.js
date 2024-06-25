@@ -12,7 +12,11 @@ export const useUsuarioStore = defineStore("usuario", () => {
     let getUsuarios = async () => {
         loading.value = true;
         try {
-            let res = await axios.get("http://localhost:2500/api/usuarios")
+            let res = await axios.get("http://localhost:2500/api/usuarios", {
+                headers: {
+                    "x-token": token.value,
+                },
+            });
             console.log(res);
             return res.data
 
@@ -27,7 +31,11 @@ export const useUsuarioStore = defineStore("usuario", () => {
     let getUsuariosActivos = async () => {
         loading.value = true;
         try {
-            let res = await axios.get("http://localhost:2500/api/usuarios/activos")
+            let res = await axios.get("http://localhost:2500/api/usuarios/activos", {
+                headers: {
+                    "x-token": token.value,
+                },
+            });
             usuarios.value = res.data.usuariosActivos || [];
             console.log(res);
             return res.data
@@ -43,7 +51,11 @@ export const useUsuarioStore = defineStore("usuario", () => {
     let getUsuariosInactivos = async () => {
         loading.value = true;
         try {
-            let res = await axios.get("http://localhost:2500/api/usuarios/inactivos")
+            let res = await axios.get("http://localhost:2500/api/usuarios/inactivos", {
+                headers: {
+                    "x-token": token.value,
+                },
+            });
             usuarios.value = res.data.usuariosInactivos || [];
             console.log(res);
             return res.data
@@ -76,7 +88,11 @@ export const useUsuarioStore = defineStore("usuario", () => {
     let login = async (l) => {
         loading.value = true
         try {
-            let req = await axios.post("http://localhost:2500/api/usuarios/login", l)
+            let req = await axios.post("http://localhost:2500/api/usuarios/login", l, {
+                headers: {
+                    "x-token": token.value,
+                },
+            });
             console.log(req);
             if (req.status === 200) {
                 token.value = req.data.token;

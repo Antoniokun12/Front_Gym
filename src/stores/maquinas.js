@@ -1,8 +1,12 @@
 import { defineStore } from "pinia"
 import axios from "axios"
 import { ref } from "vue"
+import { useUsuarioStore } from "../stores/usuarios.js"
+import { Notify } from "quasar";
 
 export const useMaquinaStore = defineStore("maquina", () => {
+
+    const useUsuario = useUsuarioStore();
 
     const maquinas = ref([]);
     let loading = ref(false);
@@ -10,7 +14,11 @@ export const useMaquinaStore = defineStore("maquina", () => {
     let getMaquina = async () => {
         loading.value = true;
         try {
-            let res = await axios.get("http://localhost:2500/api/maquinas")
+            let res = await axios.get("http://localhost:2500/api/maquinas", {
+                headers: {
+                    "x-token": useUsuario.token,
+                },
+            });
             console.log(res);
             return res.data
 
@@ -25,7 +33,11 @@ export const useMaquinaStore = defineStore("maquina", () => {
     let getMaquinasActivos = async () => {
         loading.value = true;
         try {
-            let res = await axios.get("http://localhost:2500/api/maquinas/activos")
+            let res = await axios.get("http://localhost:2500/api/maquinas/activos", {
+                headers: {
+                    "x-token": useUsuario.token,
+                },
+            });
             maquinas.value = res.data.maquinasActivos || [];
             console.log(res);
             return res.data
@@ -41,7 +53,11 @@ export const useMaquinaStore = defineStore("maquina", () => {
     let getMaquinasInactivos = async () => {
         loading.value = true;
         try {
-            let res = await axios.get("http://localhost:2500/api/maquinas/inactivos")
+            let res = await axios.get("http://localhost:2500/api/maquinas/inactivos", {
+                headers: {
+                    "x-token": useUsuario.token,
+                },
+            });
             maquinas.value = res.data.maquinasInactivos || [];
             console.log(res);
             return res.data
@@ -57,7 +73,11 @@ export const useMaquinaStore = defineStore("maquina", () => {
     let getMaquinaByID = async (id) => {
         loading.value = true;
         try {
-            let res = await axios.get(`http://localhost:2500/api/maquinas/${id}`);
+            let res = await axios.get(`http://localhost:2500/api/maquinas/${id}`, {
+                headers: {
+                    "x-token": useUsuario.token,
+                },
+            });
             return res.data.maquina;
         } catch (error) {
             console.log(error);
@@ -70,10 +90,18 @@ export const useMaquinaStore = defineStore("maquina", () => {
     let postMaquina = async (r) => {
         loading.value = true;
         try {
-            let req = await axios.post("http://localhost:2500/api/maquinas", r );
+            let req = await axios.post("http://localhost:2500/api/maquinas", r , {
+                headers: {
+                    "x-token": useUsuario.token,
+                },
+            });
             return req.data;
 
         } catch (error) {
+            Notify.create({
+                type: "negative",
+                message:error.response.data.errors[0].msg,
+            })
             console.log(error);
             return error
         } finally {
@@ -84,7 +112,11 @@ export const useMaquinaStore = defineStore("maquina", () => {
     let putMaquina = async (id, data) => {
         loading.value = true;
         try {
-            let req = await axios.put(`http://localhost:2500/api/maquinas/actualizar/${id}`, data );
+            let req = await axios.put(`http://localhost:2500/api/maquinas/actualizar/${id}`, data , {
+                headers: {
+                    "x-token": useUsuario.token,
+                },
+            });
             return req.data;
 
         } catch (error) {
