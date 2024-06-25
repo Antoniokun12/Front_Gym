@@ -5,8 +5,6 @@ import { useUsuarioStore } from "../stores/usuarios.js"
 
 export const useMantenimentosStore = defineStore("mantenimientos", () => {
 
-    const baseUrl = process.env.VITE_BACKEND_URL;
-
     const useUsuario = useUsuarioStore();
 
     const mantenimientos = ref([]);
@@ -15,7 +13,7 @@ export const useMantenimentosStore = defineStore("mantenimientos", () => {
     let getMantenimientos = async () => {
         loading.value = true;
         try {
-            let res = await axios.get(`${baseUrl}/api/mantenimientos`, {
+            let res = await axios.get(`https://backend-gym-d82g.onrender.com/api/mantenimientos`, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -34,7 +32,7 @@ export const useMantenimentosStore = defineStore("mantenimientos", () => {
     let getMantenimientosActivos = async () => {
         loading.value = true;
         try {
-            let res = await axios.get(`${baseUrl}/api/mantenimientos/activos`, {
+            let res = await axios.get(`https://backend-gym-d82g.onrender.com/api/mantenimientos/activos`, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -54,7 +52,7 @@ export const useMantenimentosStore = defineStore("mantenimientos", () => {
     let getMantenimientosInactivos = async () => {
         loading.value = true;
         try {
-            let res = await axios.get(`${baseUrl}/api/mantenimientos/inactivos`, {
+            let res = await axios.get(`https://backend-gym-d82g.onrender.com/api/mantenimientos/inactivos`, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -74,7 +72,7 @@ export const useMantenimentosStore = defineStore("mantenimientos", () => {
     let getMantenimientoByMan = async (id) => {
         loading.value = true;
         try {
-            let res = await axios.get(`${baseUrl}/api/mantenimientos/maquina/${id}`, {
+            let res = await axios.get(`https://backend-gym-d82g.onrender.com/api/mantenimientos/maquina/${id}`, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -91,7 +89,7 @@ export const useMantenimentosStore = defineStore("mantenimientos", () => {
     let postMantenimientos = async (mantenimiento) => {
         loading.value = true;
         try {
-            let req = await axios.post(`${baseUrl}/api/mantenimientos`, mantenimiento, {
+            let req = await axios.post(`https://backend-gym-d82g.onrender.com/api/mantenimientos`, mantenimiento, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -109,7 +107,7 @@ export const useMantenimentosStore = defineStore("mantenimientos", () => {
     let putMantenimientos = async (id, mantenimiento) => {
         loading.value = true;
         try {
-            let req = await axios.put(`${baseUrl}/api/mantenimientos/actualizar/${id}`, mantenimiento, {
+            let req = await axios.put(`https://backend-gym-d82g.onrender.com/api/mantenimientos/actualizar/${id}`, mantenimiento, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -128,8 +126,8 @@ export const useMantenimentosStore = defineStore("mantenimientos", () => {
         loading.value = true;
         try {
             const url = activar
-                ? `${baseUrl}/api/mantenimientos/activar/${id}`
-                : `${baseUrl}/api/mantenimientos/desactivar/${id}`;
+                ? `https://backend-gym-d82g.onrender.com/api/mantenimientos/activar/${id}`
+                : `https://backend-gym-d82g.onrender.com/api/mantenimientos/desactivar/${id}`;
             let req = await axios.put(url);
             return req.data;
 

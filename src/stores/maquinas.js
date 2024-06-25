@@ -6,8 +6,6 @@ import { Notify } from "quasar";
 
 export const useMaquinaStore = defineStore("maquina", () => {
 
-    const baseUrl = process.env.VITE_BACKEND_URL;
-
     const useUsuario = useUsuarioStore();
 
     const maquinas = ref([]);
@@ -16,7 +14,7 @@ export const useMaquinaStore = defineStore("maquina", () => {
     let getMaquina = async () => {
         loading.value = true;
         try {
-            let res = await axios.get(`${baseUrl}/api/maquinas`, {
+            let res = await axios.get(`https://backend-gym-d82g.onrender.com/api/maquinas`, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -35,7 +33,7 @@ export const useMaquinaStore = defineStore("maquina", () => {
     let getMaquinasActivos = async () => {
         loading.value = true;
         try {
-            let res = await axios.get(`${baseUrl}/api/maquinas/activos`, {
+            let res = await axios.get(`https://backend-gym-d82g.onrender.com/api/maquinas/activos`, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -55,7 +53,7 @@ export const useMaquinaStore = defineStore("maquina", () => {
     let getMaquinasInactivos = async () => {
         loading.value = true;
         try {
-            let res = await axios.get(`${baseUrl}/api/maquinas/inactivos`, {
+            let res = await axios.get(`https://backend-gym-d82g.onrender.com/api/maquinas/inactivos`, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -75,7 +73,7 @@ export const useMaquinaStore = defineStore("maquina", () => {
     let getMaquinaByID = async (id) => {
         loading.value = true;
         try {
-            let res = await axios.get(`${baseUrl}/api/maquinas/${id}`, {
+            let res = await axios.get(`https://backend-gym-d82g.onrender.com/api/maquinas/${id}`, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -92,7 +90,7 @@ export const useMaquinaStore = defineStore("maquina", () => {
     let postMaquina = async (r) => {
         loading.value = true;
         try {
-            let req = await axios.post(`${baseUrl}/api/maquinas`, r , {
+            let req = await axios.post(`https://backend-gym-d82g.onrender.com/api/maquinas`, r , {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -114,7 +112,7 @@ export const useMaquinaStore = defineStore("maquina", () => {
     let putMaquina = async (id, data) => {
         loading.value = true;
         try {
-            let req = await axios.put(`${baseUrl}/api/maquinas/actualizar/${id}`, data , {
+            let req = await axios.put(`https://backend-gym-d82g.onrender.com/api/maquinas/actualizar/${id}`, data , {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -137,8 +135,8 @@ export const useMaquinaStore = defineStore("maquina", () => {
         loading.value = true;
         try {
             const url = activar
-                ? `${baseUrl}/api/maquinas/activar/${id}`
-                : `${baseUrl}/api/maquinas/desactivar/${id}`;
+                ? `https://backend-gym-d82g.onrender.com/api/maquinas/activar/${id}`
+                : `https://backend-gym-d82g.onrender.com/api/maquinas/desactivar/${id}`;
             let req = await axios.put(url);
             return req.data;
 

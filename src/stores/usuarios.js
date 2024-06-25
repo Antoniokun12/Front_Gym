@@ -5,8 +5,6 @@ import { Notify } from "quasar";
 
 export const useUsuarioStore = defineStore("usuario", () => {
 
-    const baseUrl = process.env.VITE_BACKEND_URL;
-
     let token = ref("");
     let usuario = ref(null);
     const usuarios = ref([]);
@@ -15,7 +13,7 @@ export const useUsuarioStore = defineStore("usuario", () => {
     let getUsuarios = async () => {
         loading.value = true;
         try {
-            let res = await axios.get(`${baseUrl}api/usuarios`, {
+            let res = await axios.get(`https://backend-gym-d82g.onrender.com/api/usuarios`, {
                 headers: {
                     "x-token": token.value,
                 },
@@ -34,7 +32,7 @@ export const useUsuarioStore = defineStore("usuario", () => {
     let getUsuariosActivos = async () => {
         loading.value = true;
         try {
-            let res = await axios.get(`${baseUrl}/api/usuarios/activos`, {
+            let res = await axios.get(`https://backend-gym-d82g.onrender.com/api/usuarios/activos`, {
                 headers: {
                     "x-token": token.value,
                 },
@@ -54,7 +52,7 @@ export const useUsuarioStore = defineStore("usuario", () => {
     let getUsuariosInactivos = async () => {
         loading.value = true;
         try {
-            let res = await axios.get(`${baseUrl}/api/usuarios/inactivos`, {
+            let res = await axios.get(`https://backend-gym-d82g.onrender.com/api/usuarios/inactivos`, {
                 headers: {
                     "x-token": token.value,
                 },
@@ -74,7 +72,7 @@ export const useUsuarioStore = defineStore("usuario", () => {
     let getUsuarioByID = async (id) => {
         loading.value = true;
         try {
-            let res = await axios.get(`${baseUrl}/api/usuarios/${id}`, {
+            let res = await axios.get(`https://backend-gym-d82g.onrender.com/api/usuarios/${id}`, {
                 headers: {
                     "x-token": token.value,
                 },
@@ -111,7 +109,7 @@ export const useUsuarioStore = defineStore("usuario", () => {
     let postUsuario = async (r) => {
         loading.value = true;
         try {
-            let req = await axios.post(`${baseUrl}/api/usuarios`, r, {
+            let req = await axios.post(`https://backend-gym-d82g.onrender.com/api/usuarios`, r, {
                 headers: {
                     "x-token": token.value,
                 },
@@ -138,7 +136,7 @@ export const useUsuarioStore = defineStore("usuario", () => {
     let putUsuario = async (id, data) => {
         loading.value = true;
         try {
-            let req = await axios.put(`${baseUrl}/api/usuarios/actualizar/${id}`, data, {
+            let req = await axios.put(`https://backend-gym-d82g.onrender.com/api/usuarios/actualizar/${id}`, data, {
                 headers: {
                     "x-token": token.value,
                 },
@@ -157,8 +155,8 @@ export const useUsuarioStore = defineStore("usuario", () => {
         loading.value = true;
         try {
             const url = activar
-                ? `${baseUrl}/api/usuarios/activar/${id}`
-                : `${baseUrl}/api/usuarios/desactivar/${id}`;
+                ? `https://backend-gym-d82g.onrender.com/api/usuarios/activar/${id}`
+                : `https://backend-gym-d82g.onrender.com/api/usuarios/desactivar/${id}`;
             let req = await axios.put(url, {}, {
                 headers: {
                     "x-token": token.value,
@@ -177,7 +175,7 @@ export const useUsuarioStore = defineStore("usuario", () => {
     let forgotPassword = async (email) => {
         loading.value = true;
         try {
-            let req = await axios.post(`${baseUrl}/api/usuarios/forgot-password`, { email });
+            let req = await axios.post(`https://backend-gym-d82g.onrender.com/api/usuarios/forgot-password`, { email });
             console.log(req);
             return req.data;
         } catch (error) {
@@ -191,7 +189,7 @@ export const useUsuarioStore = defineStore("usuario", () => {
     let resetPassword = async (token, newPassword, confirmPassword ) => {
         loading.value = true;
         try {
-            let req = await axios.post(`${baseUrl}/api/usuarios/reset-password/${token}`, { newPassword, confirmPassword });
+            let req = await axios.post(`https://backend-gym-d82g.onrender.com/api/usuarios/reset-password/${token}`, { newPassword, confirmPassword });
             console.log(req);
             return req.data;
         } catch (error) {
