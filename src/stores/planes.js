@@ -6,6 +6,8 @@ import { useUsuarioStore } from "../stores/usuarios.js"
 
 export const usePlanStore = defineStore("plan", () => {
 
+    const baseUrl = process.env.VITE_BACKEND_URL;
+
     const useUsuario = useUsuarioStore();
     const planes = ref([]);
     let loading = ref(false);
@@ -13,7 +15,7 @@ export const usePlanStore = defineStore("plan", () => {
     let getPlanes = async () => {
         loading.value = true;
         try {
-            let res = await axios.get("http://localhost:2500/api/planes", {
+            let res = await axios.get(`${baseUrl}/api/planes`, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -32,7 +34,7 @@ export const usePlanStore = defineStore("plan", () => {
     let getPlanesActivos = async () => {
         loading.value = true;
         try {
-            let res = await axios.get("http://localhost:2500/api/planes/activos", {
+            let res = await axios.get(`${baseUrl}/api/planes/activos`, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -52,7 +54,7 @@ export const usePlanStore = defineStore("plan", () => {
     let getPlanesInactivos = async () => {
         loading.value = true;
         try {
-            let res = await axios.get("http://localhost:2500/api/planes/inactivos", {
+            let res = await axios.get(`${baseUrl}/api/planes/inactivos`, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -72,7 +74,7 @@ export const usePlanStore = defineStore("plan", () => {
     let getPlanesByID = async (id) => {
         loading.value = true;
         try {
-            let res = await axios.get(`http://localhost:2500/api/planes/${id}`, {
+            let res = await axios.get(`${baseUrl}/api/planes/${id}`, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -89,7 +91,7 @@ export const usePlanStore = defineStore("plan", () => {
     let postPlanes = async (plan) => {
         loading.value = true;
         try {
-            let req = await axios.post("http://localhost:2500/api/planes", plan, {
+            let req = await axios.post(`${baseUrl}/api/planes`, plan, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -107,7 +109,7 @@ export const usePlanStore = defineStore("plan", () => {
     let putPlanes = async (id, plan) => {
         loading.value = true;
         try {
-            let req = await axios.put(`http://localhost:2500/api/planes/actualizar/${id}`, plan, {
+            let req = await axios.put(`${baseUrl}/api/planes/actualizar/${id}`, plan, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -126,8 +128,8 @@ export const usePlanStore = defineStore("plan", () => {
         loading.value = true;
         try {
             const url = activar
-                ? `http://localhost:2500/api/planes/activar/${id}`
-                : `http://localhost:2500/api/planes/desactivar/${id}`;
+                ? `${baseUrl}/api/planes/activar/${id}`
+                : `${baseUrl}/api/planes/desactivar/${id}`;
             let req = await axios.put(url);
             return req.data;
 

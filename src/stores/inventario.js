@@ -5,6 +5,8 @@ import { useUsuarioStore } from "../stores/usuarios.js"
 
 export const useInventarioStore = defineStore("inventario", () => {
 
+    const baseUrl = process.env.VITE_BACKEND_URL;
+
     const useUsuario = useUsuarioStore();
 
     const inventarios = ref([]);
@@ -13,7 +15,7 @@ export const useInventarioStore = defineStore("inventario", () => {
     let getInventario = async () => {
         loading.value = true;
         try {
-            let res = await axios.get("http://localhost:2500/api/inventario", {
+            let res = await axios.get(`${baseUrl}/api/inventario`, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -32,7 +34,7 @@ export const useInventarioStore = defineStore("inventario", () => {
     let getInventarioActivos = async () => {
         loading.value = true;
         try {
-            let res = await axios.get("http://localhost:2500/api/inventario/activos", {
+            let res = await axios.get(`${baseUrl}/api/inventario/activos`, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -52,7 +54,7 @@ export const useInventarioStore = defineStore("inventario", () => {
     let getInventarioInactivos = async () => {
         loading.value = true;
         try {
-            let res = await axios.get("http://localhost:2500/api/inventario/inactivos", {
+            let res = await axios.get(`${baseUrl}/api/inventario/inactivos`, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -72,7 +74,7 @@ export const useInventarioStore = defineStore("inventario", () => {
     let getInventarioByID = async (id) => {
         loading.value = true;
         try {
-            let res = await axios.get(`http://localhost:2500/api/inventario/${id}`, {
+            let res = await axios.get(`${baseUrl}/api/inventario/${id}`, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -90,7 +92,7 @@ export const useInventarioStore = defineStore("inventario", () => {
     let postInventario = async (inventario) => {
         loading.value = true;
         try {
-            let req = await axios.post("http://localhost:2500/api/inventario", inventario, {
+            let req = await axios.post(`${baseUrl}/api/inventario`, inventario, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -108,7 +110,7 @@ export const useInventarioStore = defineStore("inventario", () => {
     let putInventario = async (id, inventario) => {
         loading.value = true;
         try {
-            let req = await axios.put(`http://localhost:2500/api/inventario/actualizar/${id}`, inventario, {
+            let req = await axios.put(`${baseUrl}/api/inventario/actualizar/${id}`, inventario, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -127,8 +129,8 @@ export const useInventarioStore = defineStore("inventario", () => {
         loading.value = true;
         try {
             const url = activar
-                ? `http://localhost:2500/api/inventario/activar/${id}`
-                : `http://localhost:2500/api/inventario/desactivar/${id}`;
+                ? `${baseUrl}/api/inventario/activar/${id}`
+                : `${baseUrl}/api/inventario/desactivar/${id}`;
             let req = await axios.put(url);
             return req.data;
 

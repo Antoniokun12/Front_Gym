@@ -5,6 +5,8 @@ import { useUsuarioStore } from "../stores/usuarios.js"
 
 export const useIngresoStore = defineStore("ingreso", () => {
 
+    const baseUrl = process.env.VITE_BACKEND_URL;
+
     const useUsuario = useUsuarioStore();
 
     const ingresos = ref([]);
@@ -13,7 +15,7 @@ export const useIngresoStore = defineStore("ingreso", () => {
     let getIngresos = async () => {
         loading.value = true;
         try {
-            let res = await axios.get("http://localhost:2500/api/ingresos", {
+            let res = await axios.get(`${baseUrl}/api/ingresos`, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -32,7 +34,7 @@ export const useIngresoStore = defineStore("ingreso", () => {
     let getIngresosActivos = async () => {
         loading.value = true;
         try {
-            let res = await axios.get("http://localhost:2500/api/ingresos/activos", {
+            let res = await axios.get(`${baseUrl}/api/ingresos/activos`, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -52,7 +54,7 @@ export const useIngresoStore = defineStore("ingreso", () => {
     let getIngresosInactivos = async () => {
         loading.value = true;
         try {
-            let res = await axios.get("http://localhost:2500/api/ingresos/inactivos", {
+            let res = await axios.get(`${baseUrl}/api/ingresos/inactivos`, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -72,7 +74,7 @@ export const useIngresoStore = defineStore("ingreso", () => {
     let getIngresosByID = async (id) => {
         loading.value = true;
         try {
-            let res = await axios.get(`http://localhost:2500/api/ingresos/ingresos/${id}`, {
+            let res = await axios.get(`${baseUrl}/api/ingresos/ingresos/${id}`, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -90,7 +92,7 @@ export const useIngresoStore = defineStore("ingreso", () => {
     let postIngresos = async (ingreso) => {
         loading.value = true;
         try {
-            let req = await axios.post("http://localhost:2500/api/ingresos", ingreso, {
+            let req = await axios.post(`${baseUrl}/api/ingresos`, ingreso, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -108,7 +110,7 @@ export const useIngresoStore = defineStore("ingreso", () => {
     let putIngresos = async (id, ingreso) => {
         loading.value = true;
         try {
-            let req = await axios.put(`http://localhost:2500/api/ingresos/actualizar/${id}`, ingreso, {
+            let req = await axios.put(`${baseUrl}/api/ingresos/actualizar/${id}`, ingreso, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -127,8 +129,8 @@ export const useIngresoStore = defineStore("ingreso", () => {
         loading.value = true;
         try {
             const url = activar
-                ? `http://localhost:2500/api/ingresos/activar/${id}`
-                : `http://localhost:2500/api/ingresos/desactivar/${id}`;
+                ? `${baseUrl}/api/ingresos/activar/${id}`
+                : `${baseUrl}/api/ingresos/desactivar/${id}`;
             let req = await axios.put(url)
             return req.data;
 

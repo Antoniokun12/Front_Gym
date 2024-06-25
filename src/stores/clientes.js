@@ -6,6 +6,8 @@ import { useUsuarioStore } from "../stores/usuarios.js"
 
 export const useClienteStore = defineStore("cliente", () => {
 
+    const baseUrl = process.env.VITE_BACKEND_URL;
+
     const useUsuario = useUsuarioStore();
     const clientes = ref([]);
     let loading = ref(false);
@@ -14,7 +16,7 @@ export const useClienteStore = defineStore("cliente", () => {
     let getClientes = async () => {
         loading.value = true;
         try {
-            let res = await axios.get("http://localhost:2500/api/clientes", {
+            let res = await axios.get(`${baseUrl}/api/clientes`, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -33,7 +35,7 @@ export const useClienteStore = defineStore("cliente", () => {
     let getClientesActivos = async () => {
         loading.value = true;
         try {
-            let res = await axios.get("http://localhost:2500/api/clientes/activos", {
+            let res = await axios.get(`${baseUrl}/api/clientes/activos`, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -53,7 +55,7 @@ export const useClienteStore = defineStore("cliente", () => {
     let getClientesInactivos = async () => {
         loading.value = true;
         try {
-            let res = await axios.get("http://localhost:2500/api/clientes/inactivos", {
+            let res = await axios.get(`${baseUrl}/api/clientes/inactivos`, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -73,7 +75,7 @@ export const useClienteStore = defineStore("cliente", () => {
     let getClienteByID = async (id) => {
         loading.value = true;
         try {
-            let res = await axios.get(`http://localhost:2500/api/clientes/${id}`, {
+            let res = await axios.get(`${baseUrl}/api/clientes/${id}`, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -90,7 +92,7 @@ export const useClienteStore = defineStore("cliente", () => {
     let postCliente = async (cliente) => {
         loading.value = true;
         try {
-            let req = await axios.post("http://localhost:2500/api/clientes", cliente, {
+            let req = await axios.post(`${baseUrl}/api/clientes`, cliente, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -108,7 +110,7 @@ export const useClienteStore = defineStore("cliente", () => {
     let addSeguimiento = async (clienteId, seguimiento) => {
         loading.value = true;
         try {
-            await axios.post(`http://localhost:2500/api/clientes/${clienteId}/seguimiento`, { seguimiento }, {
+            await axios.post(`${baseUrl}/api/clientes/${clienteId}/seguimiento`, { seguimiento }, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -125,7 +127,7 @@ export const useClienteStore = defineStore("cliente", () => {
         loading.value = true;
         try {
             console.log('ID del seguimiento a editar:', id); 
-            await axios.put(`http://localhost:2500/api/clientes/seguimiento/${id}`, updateseguimiento, {
+            await axios.put(`${baseUrl}/api/clientes/seguimiento/${id}`, updateseguimiento, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -141,7 +143,7 @@ export const useClienteStore = defineStore("cliente", () => {
     let putCliente = async (id, cliente) => {
         loading.value = true;
         try {
-            let req = await axios.put(`http://localhost:2500/api/clientes/actualizar/${id}`, cliente, {
+            let req = await axios.put(`${baseUrl}/api/clientes/actualizar/${id}`, cliente, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -160,8 +162,8 @@ export const useClienteStore = defineStore("cliente", () => {
         loading.value = true;
         try {
             const url = activar
-                ? `http://localhost:2500/api/clientes/activar/${id}`
-                : `http://localhost:2500/api/clientes/desactivar/${id}`;
+                ? `${baseUrl}/api/clientes/activar/${id}`
+                : `${baseUrl}/api/clientes/desactivar/${id}`;
             let req = await axios.put(url)
             return req.data;
 
