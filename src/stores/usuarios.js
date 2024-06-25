@@ -15,7 +15,7 @@ export const useUsuarioStore = defineStore("usuario", () => {
     let getUsuarios = async () => {
         loading.value = true;
         try {
-            let res = await axios.get(`${baseUrl}/api/usuarios`, {
+            let res = await axios.get(`${baseUrl}api/usuarios`, {
                 headers: {
                     "x-token": token.value,
                 },
