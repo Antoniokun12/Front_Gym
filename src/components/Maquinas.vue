@@ -149,6 +149,7 @@
                 v-model="fecha_ultimo_mantenimiento"
                 type="date"
                 label="Fecha Último Mantenimiento"
+                required
               />
               <q-btn
                 label="Cancelar"

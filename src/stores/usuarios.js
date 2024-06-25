@@ -118,6 +118,11 @@ export const useUsuarioStore = defineStore("usuario", () => {
                     "x-token": token.value,
                 },
             });
+            Notify.create({
+                message: `Usuario registrado correctamente`,
+                color: "positive",
+                position: "top",
+              });
             return req.data;
 
         } catch (error) {

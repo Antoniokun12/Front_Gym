@@ -120,6 +120,10 @@ export const useMaquinaStore = defineStore("maquina", () => {
             return req.data;
 
         } catch (error) {
+            Notify.create({
+                type: "negative",
+                message:error.response.data.errors[0].msg,
+            })
             console.log(error);
             return error
         } finally {
