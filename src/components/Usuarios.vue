@@ -184,7 +184,6 @@ const columns = ref([
   { name: "nombre", label: "Nombre Usuario", align: "center", field: "nombre" },
   { name: "email", label: "Email", align: "center", field: "email" },
   { name: "telefono", label: "Teléfono", align: "center", field: "telefono" },
-  { name: "password", label: "Contraseña", align: "center", field: "password" },
   { name: "rol", label: "Rol", align: "center", field: "rol" },
   { name: "estado", label: "Estado", align: "center", field: "estado" },
   { name: "opciones", label: "Opciones", align: "center", field: "opciones" },

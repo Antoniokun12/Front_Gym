@@ -1,6 +1,7 @@
 import { defineStore } from "pinia"
 import axios from "axios"
 import { ref } from "vue"
+import { Notify } from "quasar";
 
 export const useUsuarioStore = defineStore("usuario", () => {
 
@@ -120,6 +121,10 @@ export const useUsuarioStore = defineStore("usuario", () => {
             return req.data;
 
         } catch (error) {
+            Notify.create({
+                type: "negative",
+                message:error.response.data.errors[0].msg,
+            })
             console.log(error);
             return error
         } finally {
