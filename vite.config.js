@@ -4,6 +4,8 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { quasar, transformAssetUrls } from '@quasar/vite-plugin'
 
+
+
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
@@ -16,5 +18,17 @@ export default defineConfig({
     quasar({
       sassVariables: 'src/quasar-variables.sass'
     })
-  ]
+  ],
+  server: {
+    // Configura el puerto del servidor de desarrollo (opcional)
+    // port: 3000,
+    // Proxy para manejar solicitudes a tu backend en desarrollo y producción
+    proxy: {
+      '/api': {
+        target: process.env.VITE_BACKEND_URL, // URL del backend en Render
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, '')
+      }
+    }
+  }
 })
