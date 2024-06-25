@@ -3,7 +3,10 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { quasar, transformAssetUrls } from '@quasar/vite-plugin'
+import dotenv from 'dotenv'
 
+// Cargar variables de entorno
+dotenv.config()
 
 
 // https://vitejs.dev/config/
@@ -25,7 +28,7 @@ export default defineConfig({
     // Proxy para manejar solicitudes a tu backend en desarrollo y producción
     proxy: {
       '/api': {
-        target: import.meta.env.VITE_BACKEND_URL, // URL del backend en Render
+        target: process.env.VITE_BACKEND_URL, // URL del backend en Render
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, '')
       }

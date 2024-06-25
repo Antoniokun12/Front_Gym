@@ -5,7 +5,7 @@ import { Notify } from "quasar";
 
 export const useUsuarioStore = defineStore("usuario", () => {
 
-    const baseUrl = import.meta.env.VITE_BACKEND_URL;
+    const baseUrl = process.env.VITE_BACKEND_URL;
 
     let token = ref("");
     let usuario = ref(null);
