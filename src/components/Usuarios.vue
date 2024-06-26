@@ -178,7 +178,7 @@ const rol = ref("");
 const selectedUserId = ref("");
 const usuarioId = ref(null); // Para almacenar el ID del usuario en edición
 
-const roles = ref(["Administrador", "Usuario"]);
+const roles = ref(["Administrador", "Recepcionista", "Instructor"]);
 const rows = ref([]);
 const columns = ref([
   { name: "nombre", label: "Nombre Usuario", align: "center", field: "nombre" },

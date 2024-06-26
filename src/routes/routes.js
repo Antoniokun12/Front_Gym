@@ -64,7 +64,8 @@ const routes = [
       {
         path: '/home',
         name: 'Inicio',
-        component: Inicio
+        component: Inicio,
+        beforeEnter: auth, meta: { rol: ['Administrador', 'Recepcionista', 'Instructor'] }
       },
       {
         path: '/usuarios',
@@ -76,13 +77,13 @@ const routes = [
         path: '/ingresos',
         name: 'Ingresos',
         component: Ingresos,
-        beforeEnter: auth, meta: { rol: ['Administrador'] }
+        beforeEnter: auth, meta: { rol: ['Administrador', 'Recepcionista', 'Instructor'] }
       },
       {
         path: '/clientes',
         name: 'Clientes',
         component: Clientes,
-        beforeEnter: auth, meta: { rol: ['Administrador'] }
+        beforeEnter: auth, meta: { rol: ['Administrador', 'Instructor', 'Recepcionista'] }
       },
       {
         path: '/planes',
@@ -94,7 +95,7 @@ const routes = [
         path: '/maquinas',
         name: 'Maquinas',
         component: Maquinas,
-        beforeEnter: auth, meta: { rol: ['Administrador'] }
+        beforeEnter: auth, meta: { rol: ['Administrador', 'Recepcionista'] }
       },
       {
         path: '/sedes',
@@ -112,19 +113,19 @@ const routes = [
         path: '/inventario',
         name: 'Inventario',
         component: Inventario,
-        beforeEnter: auth, meta: { rol: ['Administrador'] }
+        beforeEnter: auth, meta: { rol: ['Administrador', 'Recepcionista'] }
       },
       {
         path: '/ventas',
         name: 'Ventas',
         component: Ventas,
-        beforeEnter: auth, meta: { rol: ['Administrador'] }
+        beforeEnter: auth, meta: { rol: ['Administrador', 'Recepcionista'] }
       },
       {
         path: '/mantenimientos',
         name: 'Mantenimientos',
         component: Mantenimientos,
-        beforeEnter: auth, meta: { rol: ['Administrador'] }
+        beforeEnter: auth, meta: { rol: ['Administrador', 'Recepcionista'] }
       },
     ]
   }
