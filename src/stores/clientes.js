@@ -2,6 +2,7 @@ import { defineStore } from "pinia"
 import axios from "axios"
 import { ref } from "vue"
 import { useUsuarioStore } from "../stores/usuarios.js"
+import { Notify } from "quasar";
 
 
 export const useClienteStore = defineStore("cliente", () => {
@@ -95,9 +96,18 @@ export const useClienteStore = defineStore("cliente", () => {
                     "x-token": useUsuario.token,
                 },
             });
+            Notify.create({
+                message: `Cliente registrado correctamente`,
+                color: "positive",
+                position: "top",
+            });
             return req.data;
 
         } catch (error) {
+            Notify.create({
+                type: "negative",
+                message: error.response.data.errors[0].msg,
+            })
             console.error("Error en postCliente:", error.response?.data);
             throw error;
         } finally {
@@ -124,7 +134,7 @@ export const useClienteStore = defineStore("cliente", () => {
     let editarSeguimiento = async (id, updateseguimiento) => {
         loading.value = true;
         try {
-            console.log('ID del seguimiento a editar:', id); 
+            console.log('ID del seguimiento a editar:', id);
             await axios.put(`https://backend-gym-d82g.onrender.com/api/clientes/seguimiento/${id}`, updateseguimiento, {
                 headers: {
                     "x-token": useUsuario.token,
@@ -136,7 +146,7 @@ export const useClienteStore = defineStore("cliente", () => {
             loading.value = false;
         }
     };
-    
+
 
     let putCliente = async (id, cliente) => {
         loading.value = true;

@@ -118,13 +118,13 @@ export const useUsuarioStore = defineStore("usuario", () => {
                 message: `Usuario registrado correctamente`,
                 color: "positive",
                 position: "top",
-              });
+            });
             return req.data;
 
         } catch (error) {
             Notify.create({
                 type: "negative",
-                message:error.response.data.errors[0].msg,
+                message: error.response.data.errors[0].msg,
             })
             console.log(error);
             return error
@@ -186,7 +186,7 @@ export const useUsuarioStore = defineStore("usuario", () => {
         }
     }
 
-    let resetPassword = async (token, newPassword, confirmPassword ) => {
+    let resetPassword = async (token, newPassword, confirmPassword) => {
         loading.value = true;
         try {
             let req = await axios.post(`https://backend-gym-d82g.onrender.com/api/usuarios/reset-password/${token}`, { newPassword, confirmPassword });

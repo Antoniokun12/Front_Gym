@@ -86,21 +86,26 @@ export const useMaquinaStore = defineStore("maquina", () => {
             loading.value = false;
         }
     }
-    
+
     let postMaquina = async (r) => {
         loading.value = true;
         try {
-            let req = await axios.post(`https://backend-gym-d82g.onrender.com/api/maquinas`, r , {
+            let req = await axios.post(`https://backend-gym-d82g.onrender.com/api/maquinas`, r, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
+            });
+            Notify.create({
+                message: `Maquina registrada correctamente`,
+                color: "positive",
+                position: "top",
             });
             return req.data;
 
         } catch (error) {
             Notify.create({
                 type: "negative",
-                message:error.response.data.errors[0].msg,
+                message: error.response.data.errors[0].msg,
             })
             console.log(error);
             return error
@@ -112,7 +117,7 @@ export const useMaquinaStore = defineStore("maquina", () => {
     let putMaquina = async (id, data) => {
         loading.value = true;
         try {
-            let req = await axios.put(`https://backend-gym-d82g.onrender.com/api/maquinas/actualizar/${id}`, data , {
+            let req = await axios.put(`https://backend-gym-d82g.onrender.com/api/maquinas/actualizar/${id}`, data, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -122,7 +127,7 @@ export const useMaquinaStore = defineStore("maquina", () => {
         } catch (error) {
             Notify.create({
                 type: "negative",
-                message:error.response.data.errors[0].msg,
+                message: error.response.data.errors[0].msg,
             })
             console.log(error);
             return error
@@ -151,6 +156,6 @@ export const useMaquinaStore = defineStore("maquina", () => {
         getMaquina, getMaquinasActivos, getMaquinasInactivos, getMaquinaByID, postMaquina, putMaquina, toggleEstadoMaquina, loading
     }
 },
-{
-    persist:true,
-})
+    {
+        persist: true,
+    })
