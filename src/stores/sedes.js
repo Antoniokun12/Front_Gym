@@ -13,7 +13,7 @@ export const useSedeStore = defineStore("sede", () => {
     let getSedes = async () => {
         loading.value = true;
         try {
-            let res = await axios.get(`https://backend-gym-d82g.onrender.com/api/sedes`, {
+            let res = await axios.get(`api/sedes`, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -32,7 +32,7 @@ export const useSedeStore = defineStore("sede", () => {
     let getSedesActivos = async () => {
         loading.value = true;
         try {
-            let res = await axios.get(`https://backend-gym-d82g.onrender.com/api/sedes/activos`, {
+            let res = await axios.get(`api/sedes/activos`, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -52,7 +52,7 @@ export const useSedeStore = defineStore("sede", () => {
     let getSedesInactivos = async () => {
         loading.value = true;
         try {
-            let res = await axios.get(`https://backend-gym-d82g.onrender.com/api/sedes/inactivos`, {
+            let res = await axios.get(`api/sedes/inactivos`, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -72,7 +72,7 @@ export const useSedeStore = defineStore("sede", () => {
     let getSedeByID = async (id) => {
         loading.value = true;
         try {
-            let res = await axios.get(`https://backend-gym-d82g.onrender.com/api/sedes/${id}`, {
+            let res = await axios.get(`api/sedes/${id}`, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -89,7 +89,7 @@ export const useSedeStore = defineStore("sede", () => {
     let postSedes = async (r) => {
         loading.value = true;
         try {
-            let req = await axios.post(`https://backend-gym-d82g.onrender.com/api/sedes`, r , {
+            let req = await axios.post(`api/sedes`, r , {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -107,7 +107,7 @@ export const useSedeStore = defineStore("sede", () => {
     let putSedes = async (id, data) => {
         loading.value = true;
         try {
-            let req = await axios.put(`https://backend-gym-d82g.onrender.com/api/sedes/actualizar/${id}`, data , {
+            let req = await axios.put(`api/sedes/actualizar/${id}`, data , {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -126,8 +126,8 @@ export const useSedeStore = defineStore("sede", () => {
         loading.value = true;
         try {
             const url = activar
-                ? `https://backend-gym-d82g.onrender.com/api/sedes/activar/${id}`
-                : `https://backend-gym-d82g.onrender.com/api/sedes/desactivar/${id}`;
+                ? `api/sedes/activar/${id}`
+                : `api/sedes/desactivar/${id}`;
             let req = await axios.put(url);
             return req.data;
 

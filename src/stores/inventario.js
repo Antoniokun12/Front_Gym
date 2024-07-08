@@ -13,7 +13,7 @@ export const useInventarioStore = defineStore("inventario", () => {
     let getInventario = async () => {
         loading.value = true;
         try {
-            let res = await axios.get(`https://backend-gym-d82g.onrender.com/api/inventario`, {
+            let res = await axios.get(`api/inventario`, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -32,7 +32,7 @@ export const useInventarioStore = defineStore("inventario", () => {
     let getInventarioActivos = async () => {
         loading.value = true;
         try {
-            let res = await axios.get(`https://backend-gym-d82g.onrender.com/api/inventario/activos`, {
+            let res = await axios.get(`api/inventario/activos`, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -52,7 +52,7 @@ export const useInventarioStore = defineStore("inventario", () => {
     let getInventarioInactivos = async () => {
         loading.value = true;
         try {
-            let res = await axios.get(`https://backend-gym-d82g.onrender.com/api/inventario/inactivos`, {
+            let res = await axios.get(`api/inventario/inactivos`, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -72,7 +72,7 @@ export const useInventarioStore = defineStore("inventario", () => {
     let getInventarioByID = async (id) => {
         loading.value = true;
         try {
-            let res = await axios.get(`https://backend-gym-d82g.onrender.com/api/inventario/${id}`, {
+            let res = await axios.get(`api/inventario/${id}`, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -90,7 +90,7 @@ export const useInventarioStore = defineStore("inventario", () => {
     let postInventario = async (inventario) => {
         loading.value = true;
         try {
-            let req = await axios.post(`https://backend-gym-d82g.onrender.com/api/inventario`, inventario, {
+            let req = await axios.post(`api/inventario`, inventario, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -108,7 +108,7 @@ export const useInventarioStore = defineStore("inventario", () => {
     let putInventario = async (id, inventario) => {
         loading.value = true;
         try {
-            let req = await axios.put(`https://backend-gym-d82g.onrender.com/api/inventario/actualizar/${id}`, inventario, {
+            let req = await axios.put(`api/inventario/actualizar/${id}`, inventario, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -127,8 +127,8 @@ export const useInventarioStore = defineStore("inventario", () => {
         loading.value = true;
         try {
             const url = activar
-                ? `https://backend-gym-d82g.onrender.com/api/inventario/activar/${id}`
-                : `https://backend-gym-d82g.onrender.com/api/inventario/desactivar/${id}`;
+                ? `api/inventario/activar/${id}`
+                : `api/inventario/desactivar/${id}`;
             let req = await axios.put(url);
             return req.data;
 

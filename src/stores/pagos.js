@@ -13,7 +13,7 @@ export const usePagoStore = defineStore("pago", () => {
     let getPagos = async () => {
         loading.value = true;
         try {
-            let res = await axios.get(`https://backend-gym-d82g.onrender.com/api/pagos`, {
+            let res = await axios.get(`api/pagos`, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -32,7 +32,7 @@ export const usePagoStore = defineStore("pago", () => {
     let getPagosActivos = async () => {
         loading.value = true;
         try {
-            let res = await axios.get(`https://backend-gym-d82g.onrender.com/api/pagos/activos`, {
+            let res = await axios.get(`api/pagos/activos`, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -52,7 +52,7 @@ export const usePagoStore = defineStore("pago", () => {
     let getPagosInactivos = async () => {
         loading.value = true;
         try {
-            let res = await axios.get(`https://backend-gym-d82g.onrender.com/api/pagos/inactivos`, {
+            let res = await axios.get(`api/pagos/inactivos`, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -72,7 +72,7 @@ export const usePagoStore = defineStore("pago", () => {
     let getPagosByID = async (id) => {
         loading.value = true;
         try {
-            let res = await axios.get(`https://backend-gym-d82g.onrender.com/api/pagos/pagosx/cliente/${id}`, {
+            let res = await axios.get(`api/pagos/pagosx/cliente/${id}`, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -89,7 +89,7 @@ export const usePagoStore = defineStore("pago", () => {
     let postPagos = async (pago) => {
         loading.value = true;
         try {
-            let req = await axios.post(`https://backend-gym-d82g.onrender.com/api/pagos`, pago, {
+            let req = await axios.post(`api/pagos`, pago, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -107,7 +107,7 @@ export const usePagoStore = defineStore("pago", () => {
     let putPagos = async (id, pago) => {
         loading.value = true;
         try {
-            let req = await axios.put(`https://backend-gym-d82g.onrender.com/api/pagos/actualizar/${id}`, pago, {
+            let req = await axios.put(`api/pagos/actualizar/${id}`, pago, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -126,8 +126,8 @@ export const usePagoStore = defineStore("pago", () => {
         loading.value = true;
         try {
             const url = activar
-                ? `https://backend-gym-d82g.onrender.com/api/pagos/activar/${id}`
-                : `https://backend-gym-d82g.onrender.com/api/pagos/desactivar/${id}`;
+                ? `api/pagos/activar/${id}`
+                : `api/pagos/desactivar/${id}`;
             let req = await axios.put(url);
             return req.data;
 

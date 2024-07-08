@@ -14,7 +14,7 @@ export const useMaquinaStore = defineStore("maquina", () => {
     let getMaquina = async () => {
         loading.value = true;
         try {
-            let res = await axios.get(`https://backend-gym-d82g.onrender.com/api/maquinas`, {
+            let res = await axios.get(`api/maquinas`, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -33,7 +33,7 @@ export const useMaquinaStore = defineStore("maquina", () => {
     let getMaquinasActivos = async () => {
         loading.value = true;
         try {
-            let res = await axios.get(`https://backend-gym-d82g.onrender.com/api/maquinas/activos`, {
+            let res = await axios.get(`api/maquinas/activos`, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -53,7 +53,7 @@ export const useMaquinaStore = defineStore("maquina", () => {
     let getMaquinasInactivos = async () => {
         loading.value = true;
         try {
-            let res = await axios.get(`https://backend-gym-d82g.onrender.com/api/maquinas/inactivos`, {
+            let res = await axios.get(`api/maquinas/inactivos`, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -73,7 +73,7 @@ export const useMaquinaStore = defineStore("maquina", () => {
     let getMaquinaByID = async (id) => {
         loading.value = true;
         try {
-            let res = await axios.get(`https://backend-gym-d82g.onrender.com/api/maquinas/${id}`, {
+            let res = await axios.get(`api/maquinas/${id}`, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -90,7 +90,7 @@ export const useMaquinaStore = defineStore("maquina", () => {
     let postMaquina = async (r) => {
         loading.value = true;
         try {
-            let req = await axios.post(`https://backend-gym-d82g.onrender.com/api/maquinas`, r, {
+            let req = await axios.post(`api/maquinas`, r, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -117,7 +117,7 @@ export const useMaquinaStore = defineStore("maquina", () => {
     let putMaquina = async (id, data) => {
         loading.value = true;
         try {
-            let req = await axios.put(`https://backend-gym-d82g.onrender.com/api/maquinas/actualizar/${id}`, data, {
+            let req = await axios.put(`api/maquinas/actualizar/${id}`, data, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -140,8 +140,8 @@ export const useMaquinaStore = defineStore("maquina", () => {
         loading.value = true;
         try {
             const url = activar
-                ? `https://backend-gym-d82g.onrender.com/api/maquinas/activar/${id}`
-                : `https://backend-gym-d82g.onrender.com/api/maquinas/desactivar/${id}`;
+                ? `api/maquinas/activar/${id}`
+                : `api/maquinas/desactivar/${id}`;
             let req = await axios.put(url);
             return req.data;
 

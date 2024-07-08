@@ -13,7 +13,7 @@ export const useIngresoStore = defineStore("ingreso", () => {
     let getIngresos = async () => {
         loading.value = true;
         try {
-            let res = await axios.get(`https://backend-gym-d82g.onrender.com/api/ingresos`, {
+            let res = await axios.get(`api/ingresos`, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -32,7 +32,7 @@ export const useIngresoStore = defineStore("ingreso", () => {
     let getIngresosActivos = async () => {
         loading.value = true;
         try {
-            let res = await axios.get(`https://backend-gym-d82g.onrender.com/api/ingresos/activos`, {
+            let res = await axios.get(`api/ingresos/activos`, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -52,7 +52,7 @@ export const useIngresoStore = defineStore("ingreso", () => {
     let getIngresosInactivos = async () => {
         loading.value = true;
         try {
-            let res = await axios.get(`https://backend-gym-d82g.onrender.com/api/ingresos/inactivos`, {
+            let res = await axios.get(`api/ingresos/inactivos`, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -72,7 +72,7 @@ export const useIngresoStore = defineStore("ingreso", () => {
     let getIngresosByID = async (id) => {
         loading.value = true;
         try {
-            let res = await axios.get(`https://backend-gym-d82g.onrender.com/api/ingresos/ingresos/${id}`, {
+            let res = await axios.get(`api/ingresos/ingresos/${id}`, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -90,7 +90,7 @@ export const useIngresoStore = defineStore("ingreso", () => {
     let postIngresos = async (ingreso) => {
         loading.value = true;
         try {
-            let req = await axios.post(`https://backend-gym-d82g.onrender.com/api/ingresos`, ingreso, {
+            let req = await axios.post(`api/ingresos`, ingreso, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -108,7 +108,7 @@ export const useIngresoStore = defineStore("ingreso", () => {
     let putIngresos = async (id, ingreso) => {
         loading.value = true;
         try {
-            let req = await axios.put(`https://backend-gym-d82g.onrender.com/api/ingresos/actualizar/${id}`, ingreso, {
+            let req = await axios.put(`api/ingresos/actualizar/${id}`, ingreso, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -127,8 +127,8 @@ export const useIngresoStore = defineStore("ingreso", () => {
         loading.value = true;
         try {
             const url = activar
-                ? `https://backend-gym-d82g.onrender.com/api/ingresos/activar/${id}`
-                : `https://backend-gym-d82g.onrender.com/api/ingresos/desactivar/${id}`;
+                ? `api/ingresos/activar/${id}`
+                : `api/ingresos/desactivar/${id}`;
             let req = await axios.put(url)
             return req.data;
 

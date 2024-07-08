@@ -13,7 +13,7 @@ export const useVentaStore = defineStore("venta", () => {
     let getVentas = async () => {
         loading.value = true;
         try {
-            let res = await axios.get(`https://backend-gym-d82g.onrender.com/api/ventas`, {
+            let res = await axios.get(`api/ventas`, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -32,7 +32,7 @@ export const useVentaStore = defineStore("venta", () => {
     let getVentasActivos = async () => {
         loading.value = true;
         try {
-            let res = await axios.get(`https://backend-gym-d82g.onrender.com/api/ventas/activos`, {
+            let res = await axios.get(`api/ventas/activos`, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -52,7 +52,7 @@ export const useVentaStore = defineStore("venta", () => {
     let getVentasInactivos = async () => {
         loading.value = true;
         try {
-            let res = await axios.get(`https://backend-gym-d82g.onrender.com/api/ventas/inactivos`, {
+            let res = await axios.get(`api/ventas/inactivos`, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -72,7 +72,7 @@ export const useVentaStore = defineStore("venta", () => {
     let postVentas = async (venta) => {
         loading.value = true;
         try {
-            let req = await axios.post(`https://backend-gym-d82g.onrender.com/api/ventas`, venta, {
+            let req = await axios.post(`api/ventas`, venta, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -90,7 +90,7 @@ export const useVentaStore = defineStore("venta", () => {
     let putVentas = async (id, venta) => {
         loading.value = true;
         try {
-            let req = await axios.put(`https://backend-gym-d82g.onrender.com/api/ventas/actualizar/${id}`, venta, {
+            let req = await axios.put(`api/ventas/actualizar/${id}`, venta, {
                 headers: {
                     "x-token": useUsuario.token,
                 },
@@ -109,8 +109,8 @@ export const useVentaStore = defineStore("venta", () => {
         loading.value = true;
         try {
             const url = activar
-                ? `https://backend-gym-d82g.onrender.com/api/ventas/activar/${id}`
-                : `https://backend-gym-d82g.onrender.com/api/ventas/desactivar/${id}`;
+                ? `api/ventas/activar/${id}`
+                : `api/ventas/desactivar/${id}`;
             let req = await axios.put(url);
             return req.data;
 
