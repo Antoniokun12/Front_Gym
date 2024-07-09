@@ -122,6 +122,11 @@ export const useMaquinaStore = defineStore("maquina", () => {
                     "x-token": useUsuario.token,
                 },
             });
+            Notify.create({
+                message: `Maquina Editada correctamente`,
+                color: "positive",
+                position: "top",
+            });
             return req.data;
 
         } catch (error) {

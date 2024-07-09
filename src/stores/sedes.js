@@ -1,6 +1,7 @@
 import { defineStore } from "pinia"
 import axios from "axios"
 import { ref } from "vue"
+import { Notify } from "quasar";
 import { useUsuarioStore } from "../stores/usuarios.js"
 
 export const useSedeStore = defineStore("sede", () => {
@@ -94,9 +95,18 @@ export const useSedeStore = defineStore("sede", () => {
                     "x-token": useUsuario.token,
                 },
             });
+            Notify.create({
+                message: `Sede registrada correctamente`,
+                color: "positive",
+                position: "top",
+            });
             return req.data;
 
         } catch (error) {
+            Notify.create({
+                type: "negative",
+                message: error.response.data.errors[0].msg,
+            })
             console.log(error);
             return error
         } finally {
@@ -112,9 +122,18 @@ export const useSedeStore = defineStore("sede", () => {
                     "x-token": useUsuario.token,
                 },
             });
+            Notify.create({
+                message: `Sede Editada correctamente`,
+                color: "positive",
+                position: "top",
+            });
             return req.data;
 
         } catch (error) {
+            Notify.create({
+                type: "negative",
+                message: error.response.data.errors[0].msg,
+            })
             console.log(error);
             return error
         } finally {

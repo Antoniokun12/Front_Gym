@@ -123,7 +123,16 @@ export const useClienteStore = defineStore("cliente", () => {
                     "x-token": useUsuario.token,
                 },
             });
+            Notify.create({
+                message: `Seguimiento registrado correctamente`,
+                color: "positive",
+                position: "top",
+            });
         } catch (error) {
+            Notify.create({
+                type: "negative",
+                message: error.response.data.errors[0].msg,
+            })
             console.error('Error al agregar seguimiento:', error);
             throw error;
         } finally {
@@ -140,7 +149,16 @@ export const useClienteStore = defineStore("cliente", () => {
                     "x-token": useUsuario.token,
                 },
             });
+            Notify.create({
+                message: `Seguimiento Editado correctamente`,
+                color: "positive",
+                position: "top",
+            });
         } catch (error) {
+            Notify.create({
+                type: "negative",
+                message: error.response.data.errors[0].msg,
+            })
             throw error;
         } finally {
             loading.value = false;
@@ -156,9 +174,18 @@ export const useClienteStore = defineStore("cliente", () => {
                     "x-token": useUsuario.token,
                 },
             });
+            Notify.create({
+                message: `Cliente Editado correctamente`,
+                color: "positive",
+                position: "top",
+            });
             return req.data;
 
         } catch (error) {
+            Notify.create({
+                type: "negative",
+                message: error.response.data.errors[0].msg,
+            })
             console.log(error);
             return error
         } finally {

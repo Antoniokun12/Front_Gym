@@ -140,7 +140,7 @@
               <q-input v-model="nombre" label="Nombre Usuario" required/>
               <q-input v-model="email" label="Email" />
               <q-input v-model="telefono" label="Teléfono" />
-              <q-input v-model="password" label="Contraseña" />
+              <q-input v-if="!isEditing" v-model="password" label="Contraseña" />
               <q-select v-model="rol" label="Rol" :options="roles" />
               <q-btn
                 label="Cancelar"
@@ -177,6 +177,9 @@ const password = ref("");
 const rol = ref("");
 const selectedUserId = ref("");
 const usuarioId = ref(null); // Para almacenar el ID del usuario en edición
+
+const isEditing = ref(false);
+
 
 const roles = ref(["Administrador", "Recepcionista", "Instructor"]);
 const rows = ref([]);
@@ -250,6 +253,7 @@ async function agregarOEditarUsuario() {
 
 function cancelarAgregarUsuario() {
   showForm.value = false;
+  isEditing.value = false;
 }
 
 function editarUsuario(usuario) {
@@ -258,9 +262,9 @@ function editarUsuario(usuario) {
   nombre.value = usuario.nombre;
   email.value = usuario.email;
   telefono.value = usuario.telefono;
-  password.value = usuario.password;
   rol.value = usuario.rol;
   usuarioId.value = usuario._id; // Almacenar el ID del usuario
+  isEditing.value = true;
   showForm.value = true;
 }
 
@@ -315,6 +319,7 @@ watch(showForm, (newValue) => {
     password.value = "";
     rol.value = "";
     usuarioId.value = null;
+    isEditing.value = false;
   }
 });
 

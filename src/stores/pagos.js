@@ -1,6 +1,7 @@
 import { defineStore } from "pinia"
 import axios from "axios"
 import { ref } from "vue"
+import { Notify } from "quasar";
 import { useUsuarioStore } from "../stores/usuarios.js"
 
 export const usePagoStore = defineStore("pago", () => {
@@ -94,6 +95,11 @@ export const usePagoStore = defineStore("pago", () => {
                     "x-token": useUsuario.token,
                 },
             });
+            Notify.create({
+                message: `Pago registrado correctamente`,
+                color: "positive",
+                position: "top",
+            });
             return req.data;
 
         } catch (error) {
@@ -111,6 +117,11 @@ export const usePagoStore = defineStore("pago", () => {
                 headers: {
                     "x-token": useUsuario.token,
                 },
+            });
+            Notify.create({
+                message: `Pago Editado correctamente`,
+                color: "positive",
+                position: "top",
             });
             return req.data;
 

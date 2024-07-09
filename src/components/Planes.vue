@@ -248,8 +248,7 @@ async function agregarOEditarPlan() {
     listarPlanes();
     showForm.value = false;
   } catch (error) {
-    console.error("Error al agregar o editar plan:", error);
-  }
+  } 
 }
 
 function cancelarAgregarPlan() {

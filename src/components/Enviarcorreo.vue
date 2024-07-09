@@ -18,6 +18,9 @@
         </div>
       </q-form>
     </div>
+    <div v-if="usuarioStore.loading" class="overlay">
+      <q-spinner size="xl" color="primary" />
+    </div>
   </div>
 </template>
 
@@ -33,11 +36,17 @@ const requiredRule = (value) => !!value || "Este campo es requerido";
 
 async function enviarCorreo() {
   if (!email.value) {
-    mostrarNotificacion("Por favor, ingrese su correo electrónico.", "negative");
+    mostrarNotificacion(
+      "Por favor, ingrese su correo electrónico.",
+      "negative"
+    );
     return;
   }
   if (!isValidEmailFormat(email.value)) {
-    mostrarNotificacion("El formato del correo electrónico no es válido.", "negative");
+    mostrarNotificacion(
+      "El formato del correo electrónico no es válido.",
+      "negative"
+    );
     return;
   }
 
@@ -50,7 +59,10 @@ async function enviarCorreo() {
     });
     email.value = "";
   } catch (error) {
-    mostrarNotificacion("Error al enviar el correo de recuperación.", "negative");
+    mostrarNotificacion(
+      "Error al enviar el correo de recuperación.",
+      "negative"
+    );
   }
 }
 
@@ -64,7 +76,7 @@ function mostrarNotificacion(mensaje, color = "negative") {
     message: mensaje,
     color: color,
     position: "top",
-    icon: "sentiment_dissatisfied"
+    icon: "sentiment_dissatisfied",
   });
 }
 </script>
@@ -85,7 +97,7 @@ function mostrarNotificacion(mensaje, color = "negative") {
 .forgot-password-form {
   max-width: 400px;
   padding: 20px;
-  background: rgba(0, 0, 0, 0.7); 
+  background: rgba(0, 0, 0, 0.7);
   border-radius: 8px;
 }
 
@@ -97,6 +109,19 @@ function mostrarNotificacion(mensaje, color = "negative") {
   display: flex;
   justify-content: center;
   margin-top: 20px;
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
 }
 </style>
 

@@ -1,6 +1,7 @@
 import { defineStore } from "pinia"
 import axios from "axios"
 import { ref } from "vue"
+import { Notify } from "quasar";
 import { useUsuarioStore } from "../stores/usuarios.js"
 
 
@@ -94,9 +95,18 @@ export const usePlanStore = defineStore("plan", () => {
                     "x-token": useUsuario.token,
                 },
             });
+            Notify.create({
+                message: `PLan registrado correctamente`,
+                color: "positive",
+                position: "top",
+            });
             return req.data;
 
         } catch (error) {
+            Notify.create({
+                type: "negative",
+                message: error.response.data.errors[0].msg,
+            })
             console.log(error);
             return error
         } finally {
@@ -112,9 +122,18 @@ export const usePlanStore = defineStore("plan", () => {
                     "x-token": useUsuario.token,
                 },
             });
+            Notify.create({
+                message: `PLan Editado correctamente`,
+                color: "positive",
+                position: "top",
+            });
             return req.data;
 
         } catch (error) {
+            Notify.create({
+                type: "negative",
+                message: error.response.data.errors[0].msg,
+            })
             console.log(error);
             return error
         } finally {
@@ -139,7 +158,7 @@ export const usePlanStore = defineStore("plan", () => {
         }
     }
 
-    
+
     return {
         getPlanes, getPlanesActivos, getPlanesInactivos, getPlanesByID, postPlanes, putPlanes, toggleEstadoPlanes, loading
     }

@@ -16,8 +16,6 @@ import 'quasar/src/css/index.sass'
 axios.defaults.baseURL = "https://backend-gym-d82g.onrender.com/";
 // axios.defaults.baseURL = "http://localhost:4500/"
 
-
-
 const pinia = (createPinia())
 pinia.use(piniaPluginPersistedstate)
 const app = createApp(App)

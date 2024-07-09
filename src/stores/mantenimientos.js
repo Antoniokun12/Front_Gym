@@ -1,6 +1,7 @@
 import { defineStore } from "pinia"
 import axios from "axios"
 import { ref } from "vue"
+import { Notify } from "quasar";
 import { useUsuarioStore } from "../stores/usuarios.js"
 
 export const useMantenimentosStore = defineStore("mantenimientos", () => {
@@ -94,6 +95,11 @@ export const useMantenimentosStore = defineStore("mantenimientos", () => {
                     "x-token": useUsuario.token,
                 },
             });
+            Notify.create({
+                message: `Mantenimiento registrado correctamente`,
+                color: "positive",
+                position: "top",
+            });
             return req.data;
 
         } catch (error) {
@@ -111,6 +117,11 @@ export const useMantenimentosStore = defineStore("mantenimientos", () => {
                 headers: {
                     "x-token": useUsuario.token,
                 },
+            });
+            Notify.create({
+                message: `Mantenimiento Editado correctamente`,
+                color: "positive",
+                position: "top",
             });
             return req.data;
 

@@ -27,6 +27,9 @@
         </div>
       </q-form>
     </div>
+    <div v-if="useUsuarioStore.loading" class="overlay">
+      <q-spinner size="xl" color="primary" />
+    </div>
   </div>
 </template>
 
@@ -139,6 +142,19 @@ function handleSubmit() {
   display: flex;
   justify-content: center;
   margin-top: 20px;
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
 }
 </style>
 
