@@ -70,6 +70,23 @@ export const useVentaStore = defineStore("venta", () => {
         }
     }
 
+    let getMantenimientoByVenta = async (id) => {
+        loading.value = true;
+        try {
+            let res = await axios.get(`api/ventas/${id}`, {
+                headers: {
+                    "x-token": useUsuario.token,
+                },
+            });
+            return res.data.venta;
+        } catch (error) {
+            console.log(error);
+            return error;
+        } finally {
+            loading.value = false;
+        }
+    }
+
     let postVentas = async (venta) => {
         loading.value = true;
         try {
@@ -86,6 +103,10 @@ export const useVentaStore = defineStore("venta", () => {
             return req.data;
 
         } catch (error) {
+            Notify.create({
+                type: "negative",
+                message: error.response.data.error,
+            })
             console.log(error);
             return error
         } finally {
@@ -134,7 +155,7 @@ export const useVentaStore = defineStore("venta", () => {
     }
 
     return {
-        getVentas, getVentasActivos, getVentasInactivos, postVentas, putVentas, toggleEstadoVentas, loading
+        getVentas, getVentasActivos, getVentasInactivos, getMantenimientoByVenta, postVentas, putVentas, toggleEstadoVentas, loading
     }
 },
 {

@@ -26,6 +26,17 @@
           </q-item>
         </q-list>
       </q-btn-dropdown>
+      <q-select
+        v-model="selectedVentaId"
+        label="Seleccionar Venta"
+        :options="ventaOptions"
+        emit-value
+        map-options
+        option-value="value"
+        option-label="label"
+        style="margin-left: 16px; max-width: 200px"
+        @update:model-value="obtenerVentaPorID"
+      />
     </div>
     <div class="q-pa-md">
       <q-card>
@@ -161,6 +172,21 @@ const showForm = ref(false);
 const codigo_producto = ref("");
 const cantidad = ref(0);
 const ventaId = ref(null);
+const selectedVentaId = ref("");
+const ventaOptions = ref([]);
+const productos = ref([]);
+const productoMap = ref({});
+const valor_unitario = ref("");
+
+const formatFecha = (fechaString) => {
+  const fecha = new Date(fechaString);
+  const opcionesFecha = { day: '2-digit', month: '2-digit', year: 'numeric' };
+  const opcionesHora = { hour: '2-digit', minute: '2-digit' };
+  const fechaFormateada = fecha.toLocaleDateString('es-ES', opcionesFecha);
+  const horaFormateada = fecha.toLocaleTimeString('es-ES', opcionesHora);
+  return `${fechaFormateada} ${horaFormateada}`;
+};
+
 
 const formatNumber = (number) => {
   return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
@@ -246,9 +272,7 @@ async function listarVentasInactivos() {
 
 async function agregarOEditarVenta() {
   try {
-    const producto = productoOptions.value.find(
-      (prod) => prod.value === codigo_producto.value
-    );
+    const producto = productoOptions.value.find(prod => prod.value === codigo_producto.value);
     const valor_unitario = producto ? producto.valorUnitario : 0;
     const total = valor_unitario * cantidad.value;
 
@@ -274,6 +298,7 @@ async function agregarOEditarVenta() {
   }
 }
 
+
 function cancelarAgregarVenta() {
   showForm.value = false;
 }
@@ -281,9 +306,17 @@ function cancelarAgregarVenta() {
 function editarVenta(venta) {
   codigo_producto.value = venta.codigo_producto;
   cantidad.value = venta.cantidad;
+  // Añadir actualización de valor_unitario
+  const producto = productoOptions.value.find(prod => prod.value === venta.codigo_producto);
+  if (producto) {
+    valor_unitario.value = producto.valorUnitario;
+  } else {
+    valor_unitario.value = 0; // o asignar un valor por defecto
+  }
   ventaId.value = venta._id;
   showForm.value = true;
 }
+
 
 async function activarVenta(venta) {
   try {
@@ -306,20 +339,64 @@ async function desactivarVenta(venta) {
 async function obtenerProductos() {
   try {
     const res = await useInventario.getInventario();
-    productoOptions.value = res.inventarios.map((producto) => {
+    productos.value = Array.isArray(res.inventarios) ? res.inventarios : [];
+    
+    productoOptions.value = productos.value.map((producto) => {
       return {
         label: producto.codigo + " - " + producto.descripcion,
         value: producto.codigo,
         valorUnitario: producto.valorUnitario,
       };
     });
-    listarVentas();
+
+    productoMap.value = productos.value.reduce((map, producto) => {
+      map[producto.codigo] = producto.descripcion;
+      return map;
+    }, {});
+
+    // Obtener ventas después de obtener productos
+    obtenerVentas();
   } catch (error) {
     console.error(error);
   }
 }
+
+async function obtenerVentas() {
+  try {
+    const res = await useVentas.getVentas();
+    ventaOptions.value = res.venta.map((venta) => {
+      const descripcionProducto = productoMap.value[venta.codigo_producto] || "Descripción no disponible";
+      const fechaFormateada = formatFecha(venta.fecha);
+      return {
+        label: `${descripcionProducto} - ${fechaFormateada} - ${venta.codigo_producto}`,
+        value: venta._id,
+      };
+    });
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+
+async function obtenerVentaPorID(id) {
+  try {
+    const venta = await useVentas.getMantenimientoByVenta(id);
+    rows.value = Array.isArray(venta) ? venta : [venta];
+  } catch (error) {
+    console.error(error);
+    rows.value = [];
+  }
+}
+
+
+watch(selectedVentaId, async (newValue) => {
+  if (newValue) {
+    await obtenerVentaPorID(newValue);
+  }
+});
+
 obtenerProductos();
-listarVentas()
+listarVentas();
 
 watch(showForm, (newValue) => {
   if (!newValue) {
