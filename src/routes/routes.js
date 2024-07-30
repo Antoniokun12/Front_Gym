@@ -23,11 +23,11 @@ const auth = (to, from, next) => {
       const rol = userUsuario.usuario.rol
       console.log(rol);
       if (!to.meta.rol.includes(rol)) {
-          return next({ name: 'Inicio' })
+          return next({ name: 'login' })
       }
       next()
   } else {
-      return next({ name: 'Inicio' })
+      return next({ name: 'login' })
   }
 }
 

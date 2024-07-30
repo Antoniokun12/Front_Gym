@@ -127,7 +127,16 @@
         <q-card>
           <q-card-section>
             <q-form @submit.prevent="agregarOEditarUsuario">
-              <h1 style="font-size: 30px; text-align: center; margin: 0;  line-height: 50px;">Usuario</h1>
+              <h1
+                style="
+                  font-size: 30px;
+                  text-align: center;
+                  margin: 0;
+                  line-height: 50px;
+                "
+              >
+                Usuario
+              </h1>
               <q-select
                 v-model="sede"
                 label="Sede"
@@ -139,23 +148,33 @@
                 required
               />
               <q-input v-model.trim="nombre" label="Nombre Usuario" required />
-              <q-input v-model.trim="email" label="Email" required/>
-              <q-input v-model.trim="telefono" label="Teléfono" required/>
+              <q-input v-model.trim="email" label="Email" required />
+              <q-input v-model.trim="telefono" label="Teléfono" required />
               <q-input
                 v-if="!isEditing"
                 v-model.trim="password"
                 label="Contraseña"
+                :type="showPassword ? 'text' : 'password'"
                 required
-              />
+              >
+                <template v-slot:append>
+                  <q-icon
+                    :name="showPassword ? 'visibility_off' : 'visibility'"
+                    @click="togglePasswordVisibility"
+                    class="cursor-pointer"
+                    size="20px"
+                  />
+                </template>
+              </q-input>
               <q-select v-model="rol" label="Rol" :options="roles" />
-              <div style="margin-top: 15px;">
+              <div style="margin-top: 15px">
                 <q-btn
-                label="Cancelar"
-                color="negative"
-                @click="cancelarAgregarUsuario"
-                class="q-mr-sm"
-              />
-              <q-btn type="submit" label="Guardar" color="primary" />
+                  label="Cancelar"
+                  color="negative"
+                  @click="cancelarAgregarUsuario"
+                  class="q-mr-sm"
+                />
+                <q-btn type="submit" label="Guardar" color="primary" />
               </div>
             </q-form>
           </q-card-section>
@@ -187,6 +206,7 @@ const selectedUserId = ref("");
 const usuarioId = ref(null); // Para almacenar el ID del usuario en edición
 
 const isEditing = ref(false);
+const showPassword = ref(false);
 
 const roles = ref(["Administrador", "Recepcionista", "Instructor"]);
 const rows = ref([]);
@@ -201,6 +221,10 @@ const columns = ref([
 
 const sedesOptions = ref([]);
 const userOptions = ref([]);
+
+function togglePasswordVisibility() {
+  showPassword.value = !showPassword.value;
+}
 
 async function listarUsuarios() {
   try {

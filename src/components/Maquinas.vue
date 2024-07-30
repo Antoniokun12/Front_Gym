@@ -374,7 +374,7 @@ async function obtenerSedes() {
         value: sede._id, // Asegúrate de que este es un ObjectId válido
       };
     });
-    listarMaquinas();
+    // listarMaquinas();
   } catch (error) {
     console.error(error);
   }

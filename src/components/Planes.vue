@@ -257,13 +257,16 @@ async function listarPlanesInactivos() {
 
 async function agregarOEditarPlan() {
   try {
+    let result;
     if (planId.value) {
-      await planStore.putPlanes(planId.value, plan.value);
+      result = await planStore.putPlanes(planId.value, plan.value);
     } else {
-      await planStore.postPlanes(plan.value);
+      result = await planStore.postPlanes(plan.value);
     }
-    listarPlanes();
-    showForm.value = false;
+    if (result.success) {
+      listarPlanes(); 
+      showForm.value = false; 
+    }
   } catch (error) {}
 }
 

@@ -100,7 +100,8 @@ export const usePlanStore = defineStore("plan", () => {
                 color: "positive",
                 position: "top",
             });
-            return req.data;
+            return { success: true };
+
 
         } catch (error) {
             Notify.create({
@@ -108,7 +109,7 @@ export const usePlanStore = defineStore("plan", () => {
                 message: error.response.data.errors[0].msg,
             })
             console.log(error);
-            return error
+            return { success: false };
         } finally {
             loading.value = false;
         }
@@ -127,7 +128,7 @@ export const usePlanStore = defineStore("plan", () => {
                 color: "positive",
                 position: "top",
             });
-            return req.data;
+            return { success: true };
 
         } catch (error) {
             Notify.create({
@@ -135,7 +136,7 @@ export const usePlanStore = defineStore("plan", () => {
                 message: error.response.data.errors[0].msg,
             })
             console.log(error);
-            return error
+            return { success: false };
         } finally {
             loading.value = false;
         }

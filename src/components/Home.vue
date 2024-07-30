@@ -37,6 +37,7 @@
 
     <q-drawer v-model="leftDrawerOpen" side="left" overlay elevated>
       <router-link
+        v-if="canAccess(['Administrador'])"
         to="/usuarios"
         class="drawer-link"
         active-class="drawer-link-active"
@@ -52,6 +53,7 @@
       </router-link>
 
       <router-link
+        v-if="canAccess(['Administrador', 'Instructor', 'Recepcionista'])"
         to="/clientes"
         class="drawer-link"
         active-class="drawer-link-active"
@@ -67,6 +69,7 @@
       </router-link>
 
       <router-link
+        v-if="canAccess(['Administrador'])"
         to="/sedes"
         class="drawer-link"
         active-class="drawer-link-active"
@@ -82,6 +85,7 @@
       </router-link>
 
       <router-link
+        v-if="canAccess(['Administrador', 'Instructor', 'Recepcionista'])"
         to="/ingresos"
         class="drawer-link"
         active-class="drawer-link-active"
@@ -97,6 +101,7 @@
       </router-link>
 
       <router-link
+        v-if="canAccess(['Administrador'])"
         to="/planes"
         class="drawer-link"
         active-class="drawer-link-active"
@@ -112,6 +117,7 @@
       </router-link>
 
       <router-link
+        v-if="canAccess(['Administrador'])"
         to="/pagos"
         class="drawer-link"
         active-class="drawer-link-active"
@@ -127,6 +133,7 @@
       </router-link>
 
       <router-link
+        v-if="canAccess(['Administrador', 'Recepcionista'])"
         to="/inventario"
         class="drawer-link"
         active-class="drawer-link-active"
@@ -142,6 +149,7 @@
       </router-link>
 
       <router-link
+        v-if="canAccess(['Administrador', 'Recepcionista'])"
         to="/ventas"
         class="drawer-link"
         active-class="drawer-link-active"
@@ -157,6 +165,7 @@
       </router-link>
 
       <router-link
+        v-if="canAccess(['Administrador', 'Recepcionista'])"
         to="/maquinas"
         class="drawer-link"
         active-class="drawer-link-active"
@@ -172,6 +181,7 @@
       </router-link>
 
       <router-link
+        v-if="canAccess(['Administrador', 'Recepcionista'])"
         to="/mantenimientos"
         class="drawer-link"
         active-class="drawer-link-active"
@@ -271,6 +281,10 @@ const router = useRouter();
 
 const usuario = computed(() => usuarioStore.usuario);
 
+const canAccess = (roles) => {
+  return roles.includes(usuario.value.rol);
+};
+
 onMounted(() => {
   if (usuarioStore.token) {
     // rightDrawerOpen.value = true;
@@ -299,11 +313,11 @@ const cerrarSesion = () => {
   display: block;
   padding: 5px 10px;
   color: black;
-  text-decoration: none; 
+  text-decoration: none;
   transition: background-color 0.3s;
   font-size: 18px;
-  text-align: left; 
-  white-space: nowrap; 
+  text-align: left;
+  white-space: nowrap;
 }
 
 .drawer-link:hover {
@@ -311,7 +325,7 @@ const cerrarSesion = () => {
 }
 
 .drawer-link-active {
-  background-color: #b0bec5; 
+  background-color: #b0bec5;
 }
 
 .drawer-link q-item-section {
@@ -321,11 +335,11 @@ const cerrarSesion = () => {
 
 .q-btn {
   font-size: 24px;
-  padding: 12px; 
+  padding: 12px;
 }
 
 .q-icon {
-  font-size: 36px; 
+  font-size: 36px;
 }
 
 .text-center {
@@ -337,6 +351,5 @@ const cerrarSesion = () => {
   display: flex;
   justify-content: flex-end;
 }
-
 </style>
 
