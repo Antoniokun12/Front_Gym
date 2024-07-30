@@ -8,7 +8,12 @@
         @click="showForm = true"
         class="q-my-md"
       />
-      <q-btn-dropdown color="primary" icon="visibility" label="Filtrar" style="margin-left: 16px;">
+      <q-btn-dropdown
+        color="primary"
+        icon="visibility"
+        label="Filtrar"
+        style="margin-left: 16px"
+      >
         <q-list>
           <q-item clickable v-ripple @click="listarInventario">
             <q-item-section>Listar Todos</q-item-section>
@@ -29,7 +34,7 @@
         map-options
         option-value="value"
         option-label="label"
-        style="margin-left: 16px; max-width: 200px;"
+        style="margin-left: 16px; max-width: 200px"
         @update:model-value="obtenerInvPorID"
       />
     </div>
@@ -54,7 +59,7 @@
                   icon="edit"
                   @click="editarInventario(props.row)"
                 >
-                <q-tooltip
+                  <q-tooltip
                     class="bg-indigo rounded-borders row flex-center"
                     :offset="[10, 10]"
                     style="width: 120px; height: 40px; font-size: 15px"
@@ -70,7 +75,7 @@
                   @click="activarInventario(props.row)"
                   v-if="props.row.estado === 0"
                 >
-                <q-tooltip
+                  <q-tooltip
                     class="bg-indigo rounded-borders row flex-center"
                     :offset="[10, 10]"
                     style="width: 120px; height: 40px; font-size: 15px"
@@ -86,7 +91,7 @@
                   @click="desactivarInventario(props.row)"
                   v-else
                 >
-                <q-tooltip
+                  <q-tooltip
                     class="bg-indigo rounded-borders row flex-center"
                     :offset="[10, 10]"
                     style="width: 120px; height: 40px; font-size: 15px"
@@ -105,7 +110,11 @@
             </template>
             <template v-slot:no-data>
               <div class="q-pa-md text-center">
-                <q-icon name="sentiment_dissatisfied" size="lg" class="q-mr-sm" />
+                <q-icon
+                  name="sentiment_dissatisfied"
+                  size="lg"
+                  class="q-mr-sm"
+                />
                 <div class="text-h6">No hay productos disponibles</div>
               </div>
             </template>
@@ -118,21 +127,43 @@
         <q-card>
           <q-card-section>
             <q-form @submit.prevent="agregarOEditarInventario">
-              <q-input v-model="codigo" label="Código" required />
-              <q-input v-model="descripcion" label="Descripción" required />
-              <q-input v-model="valorUnitario" type="number" label="Valor Unitario" required />
-              <q-input v-model="cantidad" type="number" label="Cantidad" required />
-              <q-btn
-                label="Cancelar"
-                color="negative"
-                @click="cancelarAgregarInventario"
-                class="q-mr-sm"
+              <h1
+                style="
+                  font-size: 30px;
+                  text-align: center;
+                  margin: 0;
+                  line-height: 50px;
+                "
+              >
+                Articulo
+              </h1>
+              <q-input v-model.trim="codigo" label="Código" required />
+              <q-input
+                v-model.trim="descripcion"
+                label="Descripción"
+                required
               />
-              <q-btn
-                type="submit"
-                label="Guardar"
-                color="primary"
+              <q-input
+                v-model.trim="valorUnitario"
+                type="number"
+                label="Valor Unitario"
+                required
               />
+              <q-input
+                v-model.trim="cantidad"
+                type="number"
+                label="Cantidad"
+                required
+              />
+              <div style="margin-top: 15px;">
+                <q-btn
+                  label="Cancelar"
+                  color="negative"
+                  @click="cancelarAgregarInventario"
+                  class="q-mr-sm"
+                />
+                <q-btn type="submit" label="Guardar" color="primary" />
+              </div>
             </q-form>
           </q-card-section>
         </q-card>
@@ -152,23 +183,43 @@ const useInventario = useInventarioStore();
 const showForm = ref(false);
 const codigo = ref("");
 const descripcion = ref("");
-const valorUnitario = ref(0);
-const cantidad = ref(0);
+const valorUnitario = ref("");
+const cantidad = ref("");
 const inventarioId = ref(null);
 const selectedInvId = ref("");
 const InvOptions = ref([]);
 
 const formatNumber = (number) => {
-  return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 };
 
 const rows = ref([]);
 const columns = ref([
   { name: "codigo", label: "Código", align: "center", field: "codigo" },
-  { name: "descripcion", label: "Descripción", align: "center", field: "descripcion" },
-  { name: "valorUnitario", label: "Valor Unitario", align: "center", field: (row)=>formatNumber(row.valorUnitario) },
-  { name: "cantidad", label: "Cantidad", align: "center", field: (row)=>formatNumber(row.cantidad) },
-  { name: "valorTotal", label: "Valor Total", align: "center", field: (row)=>formatNumber(row.valorTotal) },
+  {
+    name: "descripcion",
+    label: "Descripción",
+    align: "center",
+    field: "descripcion",
+  },
+  {
+    name: "valorUnitario",
+    label: "Valor Unitario",
+    align: "center",
+    field: (row) => formatNumber(row.valorUnitario),
+  },
+  {
+    name: "cantidad",
+    label: "Cantidad",
+    align: "center",
+    field: (row) => formatNumber(row.cantidad),
+  },
+  {
+    name: "valorTotal",
+    label: "Valor Total",
+    align: "center",
+    field: (row) => formatNumber(row.valorTotal),
+  },
   { name: "estado", label: "Estado", align: "center", field: "estado" },
   { name: "opciones", label: "Opciones", align: "center" },
 ]);
@@ -178,7 +229,7 @@ async function listarInventario() {
     const r = await useInventario.getInventario();
     rows.value = Array.isArray(r.inventarios) ? r.inventarios : [];
     InvOptions.value = r.inventarios.map((inventarios) => ({
-      label: inventarios.descripcion + ' - ' + inventarios.codigo,
+      label: inventarios.descripcion + " - " + inventarios.codigo,
       value: inventarios._id,
     }));
   } catch (error) {
@@ -214,13 +265,16 @@ async function agregarOEditarInventario() {
       valorUnitario: valorUnitario.value,
       cantidad: cantidad.value,
     };
+    let result;
     if (inventarioId.value) {
-      await useInventario.putInventario(inventarioId.value, data);
+      result = await useInventario.putInventario(inventarioId.value, data);
     } else {
-      await useInventario.postInventario(data);
+      result = await useInventario.postInventario(data);
     }
-    listarInventario();
-    showForm.value = false;
+    if (result.success) {
+      listarInventario(); 
+      showForm.value = false; 
+    }
   } catch (error) {
     console.error("Error al agregar o editar inventario:", error);
     if (error.response && error.response.data) {
@@ -296,11 +350,11 @@ listarInventario();
 }
 
 .q-icon {
-  font-size: 3rem; 
+  font-size: 3rem;
 }
 
 .text-h6 {
-  font-size: 1.5rem; 
+  font-size: 1.5rem;
 }
 
 .overlay {

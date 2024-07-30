@@ -87,6 +87,27 @@ export const usePagoStore = defineStore("pago", () => {
         }
     }
 
+    let getPagosPorFecha = async (fecha) => {
+        loading.value = true;
+        try {
+            let res = await axios.get(`/api/pagos/fecha/${fecha}`, {
+                headers: {
+                    "x-token": useUsuario.token,
+                },
+                params: { busqueda: fecha }  // Pasar la fecha como parámetro de consulta
+            });
+            pagos.value = res.data.pagos || [];
+            console.log(res);
+            return res.data;
+        } catch (error) {
+            console.log(error);
+            return error;
+        } finally {
+            loading.value = false;
+        }
+    }
+    
+
     let postPagos = async (pago) => {
         loading.value = true;
         try {
@@ -100,11 +121,16 @@ export const usePagoStore = defineStore("pago", () => {
                 color: "positive",
                 position: "top",
             });
-            return req.data;
+            return { success: true };
 
         } catch (error) {
+            const errorMessage = error.response?.data?.errors?.[0]?.msg || "Error al registrar el pago";
+            Notify.create({
+                type: "negative",
+                message: errorMessage,
+            });
             console.log(error);
-            return error
+            return { success: false };
         } finally {
             loading.value = false;
         }
@@ -123,11 +149,16 @@ export const usePagoStore = defineStore("pago", () => {
                 color: "positive",
                 position: "top",
             });
-            return req.data;
+            return { success: true };
 
         } catch (error) {
+            const errorMessage = error.response?.data?.errors?.[0]?.msg || "Error al registrar el pago";
+            Notify.create({
+                type: "negative",
+                message: errorMessage,
+            });
             console.log(error);
-            return error
+            return { success: false };
         } finally {
             loading.value = false;
         }
@@ -151,10 +182,10 @@ export const usePagoStore = defineStore("pago", () => {
     }
 
     return {
-        getPagos, getPagosActivos, getPagosInactivos, getPagosByID, postPagos, putPagos, toggleEstadoPagos, loading
+        getPagos, getPagosActivos, getPagosInactivos, getPagosByID, getPagosPorFecha, postPagos, putPagos, toggleEstadoPagos, loading
     }
 },
-{
-    persist:true,
-},
+    {
+        persist: true,
+    },
 )

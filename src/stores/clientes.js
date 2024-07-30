@@ -101,7 +101,7 @@ export const useClienteStore = defineStore("cliente", () => {
                 color: "positive",
                 position: "top",
             });
-            return req.data;
+            return { success: true };
 
         } catch (error) {
             Notify.create({
@@ -109,7 +109,7 @@ export const useClienteStore = defineStore("cliente", () => {
                 message: error.response.data.errors[0].msg,
             })
             console.error("Error en postCliente:", error.response?.data);
-            throw error;
+            return { success: false };
         } finally {
             loading.value = false;
         }
@@ -179,7 +179,7 @@ export const useClienteStore = defineStore("cliente", () => {
                 color: "positive",
                 position: "top",
             });
-            return req.data;
+            return { success: true };
 
         } catch (error) {
             Notify.create({
@@ -187,7 +187,7 @@ export const useClienteStore = defineStore("cliente", () => {
                 message: error.response.data.errors[0].msg,
             })
             console.log(error);
-            return error
+            return { success: false };
         } finally {
             loading.value = false;
         }

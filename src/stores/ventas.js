@@ -87,6 +87,22 @@ export const useVentaStore = defineStore("venta", () => {
         }
     }
 
+    const getVentasPorFecha = async (fecha) => {
+        loading.value = true;
+        try {
+            const res = await axios.get(`api/ventas/fecha/${fecha}`, {
+                headers: { "x-token": useUsuario.token },
+            });
+            return res.data; // Asegúrate de que `res.data` contiene `ventas`
+        } catch (error) {
+            console.error('Error en getVentasPorFecha:', error);
+            return error;
+        } finally {
+            loading.value = false;
+        }
+    }
+
+
     let postVentas = async (venta) => {
         loading.value = true;
         try {
@@ -100,15 +116,34 @@ export const useVentaStore = defineStore("venta", () => {
                 color: "positive",
                 position: "top",
             });
-            return req.data;
+            return { success: true };
 
         } catch (error) {
+            let errorMessage = "Error al registrar la venta";
+
+            if (error.response) {
+                if (error.response.data?.errors) {
+                    
+                    errorMessage = error.response.data.errors[0]?.msg || errorMessage;
+                } else if (error.response.data?.error) {
+                    
+                    errorMessage = error.response.data.error;
+                } else {
+                    
+                    errorMessage = error.response.statusText || error.message;
+                }
+            } else {
+                
+                errorMessage = error.message;
+            }
+
             Notify.create({
                 type: "negative",
-                message: error.response.data.error,
-            })
+                message: errorMessage,
+                position: "top",
+            });
             console.log(error);
-            return error
+            return { success: false };
         } finally {
             loading.value = false;
         }
@@ -127,11 +162,34 @@ export const useVentaStore = defineStore("venta", () => {
                 color: "positive",
                 position: "top",
             });
-            return req.data;
+            return { success: true };
 
         } catch (error) {
+            let errorMessage = "Error al registrar la venta";
+
+            if (error.response) {
+                if (error.response.data?.errors) {
+                    
+                    errorMessage = error.response.data.errors[0]?.msg || errorMessage;
+                } else if (error.response.data?.error) {
+                    
+                    errorMessage = error.response.data.error;
+                } else {
+                    
+                    errorMessage = error.response.statusText || error.message;
+                }
+            } else {
+                
+                errorMessage = error.message;
+            }
+
+            Notify.create({
+                type: "negative",
+                message: errorMessage,
+                position: "top",
+            });
             console.log(error);
-            return error
+            return { success: false };
         } finally {
             loading.value = false;
         }
@@ -155,10 +213,10 @@ export const useVentaStore = defineStore("venta", () => {
     }
 
     return {
-        getVentas, getVentasActivos, getVentasInactivos, getMantenimientoByVenta, postVentas, putVentas, toggleEstadoVentas, loading
+        getVentas, getVentasActivos, getVentasInactivos, getMantenimientoByVenta, getVentasPorFecha, postVentas, putVentas, toggleEstadoVentas, loading
     }
 },
-{
-    persist:true,
-},
+    {
+        persist: true,
+    },
 )

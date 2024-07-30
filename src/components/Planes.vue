@@ -127,31 +127,43 @@
         <q-card>
           <q-card-section>
             <q-form @submit="agregarOEditarPlan">
-              <q-input v-model="plan.codigo" label="Código" required />
+              <h1
+                style="
+                  font-size: 30px;
+                  text-align: center;
+                  margin: 0;
+                  line-height: 50px;
+                "
+              >
+                Plan
+              </h1>
+              <q-input v-model.trim="plan.codigo" label="Código" required />
               <q-input
-                v-model="plan.descripcion"
+                v-model.trim="plan.descripcion"
                 label="Descripción"
                 required
               />
               <q-input
-                v-model="plan.valor"
+                v-model.trim="plan.valor"
                 label="Valor"
                 type="number"
                 required
               />
               <q-input
-                v-model="plan.dias"
+                v-model.trim="plan.dias"
                 label="Días"
                 type="number"
                 required
               />
-              <q-btn
-                label="Cancelar"
-                color="negative"
-                @click="cancelarAgregarPlan"
-                class="q-mr-sm"
-              />
-              <q-btn type="submit" label="Guardar" color="primary" />
+              <div style="margin-top: 15px;">
+                <q-btn
+                  label="Cancelar"
+                  color="negative"
+                  @click="cancelarAgregarPlan"
+                  class="q-mr-sm"
+                />
+                <q-btn type="submit" label="Guardar" color="primary" />
+              </div>
             </q-form>
           </q-card-section>
         </q-card>
@@ -176,7 +188,7 @@ const valor = "";
 const dias = "";
 
 const formatNumber = (number) => {
-  return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 };
 
 const planId = ref(null);
@@ -196,7 +208,12 @@ const columns = ref([
     align: "center",
     field: "descripcion",
   },
-  { name: "valor", label: "Valor", align: "center", field: (row)=>formatNumber(row.valor) },
+  {
+    name: "valor",
+    label: "Valor",
+    align: "center",
+    field: (row) => formatNumber(row.valor),
+  },
   { name: "dias", label: "Días", align: "center", field: "dias" },
   { name: "estado", label: "Estado", align: "center", field: "estado" },
   { name: "opciones", label: "Opciones", align: "center", field: "opciones" },
@@ -247,8 +264,7 @@ async function agregarOEditarPlan() {
     }
     listarPlanes();
     showForm.value = false;
-  } catch (error) {
-  } 
+  } catch (error) {}
 }
 
 function cancelarAgregarPlan() {

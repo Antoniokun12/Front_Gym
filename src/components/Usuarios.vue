@@ -127,6 +127,7 @@
         <q-card>
           <q-card-section>
             <q-form @submit.prevent="agregarOEditarUsuario">
+              <h1 style="font-size: 30px; text-align: center; margin: 0;  line-height: 50px;">Usuario</h1>
               <q-select
                 v-model="sede"
                 label="Sede"
@@ -137,18 +138,25 @@
                 option-label="label"
                 required
               />
-              <q-input v-model="nombre" label="Nombre Usuario" required/>
-              <q-input v-model="email" label="Email" />
-              <q-input v-model="telefono" label="Teléfono" />
-              <q-input v-if="!isEditing" v-model="password" label="Contraseña" />
+              <q-input v-model.trim="nombre" label="Nombre Usuario" required />
+              <q-input v-model.trim="email" label="Email" required/>
+              <q-input v-model.trim="telefono" label="Teléfono" required/>
+              <q-input
+                v-if="!isEditing"
+                v-model.trim="password"
+                label="Contraseña"
+                required
+              />
               <q-select v-model="rol" label="Rol" :options="roles" />
-              <q-btn
+              <div style="margin-top: 15px;">
+                <q-btn
                 label="Cancelar"
                 color="negative"
                 @click="cancelarAgregarUsuario"
                 class="q-mr-sm"
               />
               <q-btn type="submit" label="Guardar" color="primary" />
+              </div>
             </q-form>
           </q-card-section>
         </q-card>
@@ -164,7 +172,7 @@
 import { ref, watch } from "vue";
 import { useUsuarioStore } from "../stores/usuarios.js";
 import { useSedeStore } from "../stores/sedes.js";
- 
+
 const useUsuarios = useUsuarioStore();
 const useSedes = useSedeStore();
 
@@ -179,7 +187,6 @@ const selectedUserId = ref("");
 const usuarioId = ref(null); // Para almacenar el ID del usuario en edición
 
 const isEditing = ref(false);
-
 
 const roles = ref(["Administrador", "Recepcionista", "Instructor"]);
 const rows = ref([]);
@@ -239,13 +246,20 @@ async function agregarOEditarUsuario() {
       password: password.value,
       rol: rol.value,
     };
+
+    let result;
+
     if (usuarioId.value) {
-      await useUsuarios.putUsuario(usuarioId.value, data);
+      result = await useUsuarios.putUsuario(usuarioId.value, data);
     } else {
-      await useUsuarios.postUsuario(data);
+      result = await useUsuarios.postUsuario(data);
     }
-    listarUsuarios(); // Actualiza la lista de usuarios después de agregar o editar
-    showForm.value = false;
+    console.log("Operation result:", result); // Verifica el resultado
+
+    if (result.success) {
+      listarUsuarios(); // Actualiza la lista de usuarios después de agregar o editar
+      showForm.value = false; // Cierra el formulario solo si la operación fue exitosa
+    }
   } catch (error) {
     console.error(error);
   }
@@ -327,7 +341,7 @@ obtenerSedes();
 listarUsuarios();
 </script>
 
-<style>
+<style scoped>
 .q-card-section {
   padding: 20px;
 }

@@ -37,6 +37,21 @@
         style="margin-left: 16px; max-width: 200px"
         @update:model-value="obtenerPagosPorID"
       />
+      <div class="fes">
+        <q-input
+          v-model="fechaFiltro"
+          type="date"
+          label="Filtrar por Fecha"
+          class="q-mb-md"
+          style="max-width: 200px; margin-left: 16px"
+        />
+        <q-btn
+          label="Filtrar"
+          color="primary"
+          @click="filtrarPorFecha"
+          class="fes"
+        />
+      </div>
     </div>
     <div class="q-pa-md">
       <q-card>
@@ -127,6 +142,16 @@
         <q-card>
           <q-card-section>
             <q-form @submit.prevent="agregarOEditarPago">
+              <h1
+                style="
+                  font-size: 30px;
+                  text-align: center;
+                  margin: 0;
+                  line-height: 50px;
+                "
+              >
+                Pago
+              </h1>
               <q-select
                 v-model="id_cliente"
                 label="Cliente"
@@ -137,13 +162,15 @@
                 option-label="label"
                 required
               />
-              <q-btn
-                label="Cancelar"
-                color="negative"
-                @click="cancelarAgregarPago"
-                class="q-mr-sm"
-              />
-              <q-btn type="submit" label="Guardar" color="primary" />
+              <div style="margin-top: 15px">
+                <q-btn
+                  label="Cancelar"
+                  color="negative"
+                  @click="cancelarAgregarPago"
+                  class="q-mr-sm"
+                />
+                <q-btn type="submit" label="Guardar" color="primary" />
+              </div>
             </q-form>
           </q-card-section>
         </q-card>
@@ -167,6 +194,7 @@ const showForm = ref(false);
 const id_cliente = ref("");
 const pagoId = ref(null);
 const selectedPagosId = ref("");
+const fechaFiltro = ref("");
 
 const formatNumber = (number) => {
   return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
@@ -190,14 +218,8 @@ const columns = ref([
         year: "numeric",
       };
       const opcionesHora = { hour: "2-digit", minute: "2-digit" };
-      const fechaFormateada = fecha.toLocaleDateString(
-        "es-ES",
-        opcionesFecha
-      );
-      const horaFormateada = fecha.toLocaleTimeString(
-        "es-ES",
-        opcionesHora
-      );
+      const fechaFormateada = fecha.toLocaleDateString("es-ES", opcionesFecha);
+      const horaFormateada = fecha.toLocaleTimeString("es-ES", opcionesHora);
       return `${fechaFormateada} ${horaFormateada}`;
     },
   },
@@ -264,18 +286,36 @@ async function listarClientes() {
   }
 }
 
+const filtrarPorFecha = async () => {
+  try {
+    if (fechaFiltro.value) {
+      const r = await usePagos.getPagosPorFecha(fechaFiltro.value);
+      rows.value = r.pagos || [];
+    } else {
+      // Obtener todos los pagos o manejar la lógica que necesitas cuando no hay filtro
+      listarPagos(); // Asume que tienes una función para listar todos los pagos
+    }
+  } catch (error) {
+    console.error("Error al filtrar pagos por fecha:", error);
+  }
+};
+
+
 async function agregarOEditarPago() {
   try {
     const data = {
       id_cliente: id_cliente.value,
     };
+    let result;
     if (pagoId.value) {
-      await usePagos.putPagos(pagoId.value, data);
+      result = await usePagos.putPagos(pagoId.value, data);
     } else {
-      await usePagos.postPagos(data);
+      result = await usePagos.postPagos(data);
     }
-    listarPagos();
-    showForm.value = false;
+    if (result.success) {
+      listarPagos();
+      showForm.value = false;
+    }
   } catch (error) {
     console.error("Error al agregar o editar pago:", error);
     if (error.response && error.response.data) {
@@ -365,5 +405,9 @@ listarPagos();
   justify-content: center;
   align-items: center;
   z-index: 9999;
+}
+
+.fes {
+  width: 200px;
 }
 </style>

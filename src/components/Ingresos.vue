@@ -37,6 +37,21 @@
         style="margin-left: 16px; max-width: 200px"
         @update:model-value="obtenerIngresosPorID"
       />
+      <div class="fes">
+        <q-input
+          v-model="fechaFiltro"
+          type="date"
+          label="Filtrar por Fecha"
+          class="q-mb-md"
+          style="max-width: 200px; margin-left: 16px"
+        />
+        <q-btn
+          label="Filtrar"
+          color="primary"
+          @click="filtrarPorFecha"
+          class="fes"
+        />
+      </div>
     </div>
     <div class="q-pa-md">
       <q-card>
@@ -127,6 +142,16 @@
         <q-card>
           <q-card-section>
             <q-form @submit.prevent="agregarOEditarIngreso">
+              <h1
+                style="
+                  font-size: 30px;
+                  text-align: center;
+                  margin: 0;
+                  line-height: 50px;
+                "
+              >
+                Ingreso
+              </h1>
               <q-select
                 v-model="id_cliente"
                 label="Cliente"
@@ -147,13 +172,15 @@
                 option-label="label"
                 required
               />
-              <q-btn
-                label="Cancelar"
-                color="negative"
-                @click="cancelarAgregarIngreso"
-                class="q-mr-sm"
-              />
-              <q-btn type="submit" label="Guardar" color="primary" />
+              <div style="margin-top: 15px">
+                <q-btn
+                  label="Cancelar"
+                  color="negative"
+                  @click="cancelarAgregarIngreso"
+                  class="q-mr-sm"
+                />
+                <q-btn type="submit" label="Guardar" color="primary" />
+              </div>
             </q-form>
           </q-card-section>
         </q-card>
@@ -166,7 +193,7 @@
 </template>
 
 <script setup>
-import { ref, watch } from "vue";
+import { ref, computed, watch } from "vue";
 import { useIngresoStore } from "../stores/ingresos.js";
 import { useClienteStore } from "../stores/clientes.js";
 import { useSedeStore } from "../stores/sedes.js";
@@ -181,6 +208,8 @@ const fecha = ref("");
 const estado = ref("");
 const ingresoId = ref(null);
 const selectedIngresosId = ref("");
+
+const fechaFiltro = ref("");
 
 const clientesOptions = ref([]);
 const sedesOptions = ref([]);
@@ -207,16 +236,32 @@ const columns = ref([
     field: "fecha",
     format: (val) => {
       const fecha = new Date(val);
-      const opcionesFecha = { day: '2-digit', month: '2-digit', year: 'numeric' };
-      const opcionesHora = { hour: '2-digit', minute: '2-digit' };
-      const fechaFormateada = fecha.toLocaleDateString('es-ES', opcionesFecha);
-      const horaFormateada = fecha.toLocaleTimeString('es-ES', opcionesHora);
+      const opcionesFecha = {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      };
+      const opcionesHora = { hour: "2-digit", minute: "2-digit" };
+      const fechaFormateada = fecha.toLocaleDateString("es-ES", opcionesFecha);
+      const horaFormateada = fecha.toLocaleTimeString("es-ES", opcionesHora);
       return `${fechaFormateada} ${horaFormateada}`;
     },
   },
   { name: "estado", label: "Estado", align: "center", field: "estado" },
   { name: "opciones", label: "Opciones", align: "center", field: "opciones" },
 ]);
+
+const enrichedRows = computed(() => {
+  return rows.value.map((ingreso) => {
+    const cliente = clientesMap.value[ingreso.id_cliente];
+    const sede = sedesMap.value[ingreso.id_sede];
+    return {
+      ...ingreso,
+      cliente: cliente ? cliente : "Desconocido",
+      sede: sede ? sede : "Desconocido",
+    };
+  });
+});
 
 async function listarIngresos() {
   try {
@@ -240,6 +285,20 @@ async function listarIngresosInactivos() {
   try {
     const r = await useIngresos.getIngresosInactivos();
     rows.value = r.ingresosInactivos;
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+async function filtrarPorFecha() {
+  try {
+    if (fechaFiltro.value) {
+      
+      const r = await useIngresos.getIngresosPorFecha(fechaFiltro.value);
+      rows.value = r.ingresos || [];
+    } else {
+      listarIngresos(); 
+    }
   } catch (error) {
     console.error(error);
   }
@@ -281,8 +340,8 @@ function cancelarAgregarIngreso() {
 }
 
 function editarIngreso(ingreso) {
-  id_cliente.value = ingreso.id_cliente.nombre;
-  id_sede.value = ingreso.id_sede.nombre;
+  id_cliente.value = ingreso.id_cliente._id;
+  id_sede.value = ingreso.id_sede._id;
   fecha.value = ingreso.fecha.split("T")[0];
   estado.value = ingreso.estado === 1 ? "Activo" : "Inactivo";
   ingresoId.value = ingreso._id;
@@ -329,7 +388,7 @@ async function obtenerClientesYSedes() {
       return acc;
     }, {});
 
-    listarIngresos();
+    // listarIngresos();
   } catch (error) {
     console.error(error);
   }
@@ -346,8 +405,6 @@ async function obtenerIngresosPorID(Id) {
   }
 }
 
-listarIngresos()
-
 watch(showForm, (newValue) => {
   if (!newValue) {
     id_cliente.value = "";
@@ -357,6 +414,7 @@ watch(showForm, (newValue) => {
     ingresoId.value = null;
   }
 });
+listarIngresos();
 </script>
 
 <style>
@@ -391,6 +449,10 @@ watch(showForm, (newValue) => {
   justify-content: center;
   align-items: center;
   z-index: 9999;
+}
+
+.fes{
+  width: 200px;
 }
 </style>
 

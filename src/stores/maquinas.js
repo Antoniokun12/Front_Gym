@@ -100,7 +100,7 @@ export const useMaquinaStore = defineStore("maquina", () => {
                 color: "positive",
                 position: "top",
             });
-            return req.data;
+            return { success: true };
 
         } catch (error) {
             Notify.create({
@@ -108,7 +108,7 @@ export const useMaquinaStore = defineStore("maquina", () => {
                 message: error.response.data.errors[0].msg,
             })
             console.log(error);
-            return error
+            return { success: false };
         } finally {
             loading.value = false;
         }
@@ -127,7 +127,7 @@ export const useMaquinaStore = defineStore("maquina", () => {
                 color: "positive",
                 position: "top",
             });
-            return req.data;
+            return { success: true };
 
         } catch (error) {
             Notify.create({
@@ -135,7 +135,7 @@ export const useMaquinaStore = defineStore("maquina", () => {
                 message: error.response.data.errors[0].msg,
             })
             console.log(error);
-            return error
+            return { success: false };
         } finally {
             loading.value = false;
         }

@@ -127,7 +127,17 @@
         <q-card>
           <q-card-section>
             <q-form @submit.prevent="agregarOEditarMaquina">
-              <q-input v-model="codigo" label="Código" required />
+              <h1
+                style="
+                  font-size: 30px;
+                  text-align: center;
+                  margin: 0;
+                  line-height: 50px;
+                "
+              >
+                Maquina
+              </h1>
+              <q-input v-model.trim="codigo" label="Código" required />
               <q-select
                 v-model="id_sede"
                 label="Sede"
@@ -138,7 +148,11 @@
                 option-label="label"
                 required
               />
-              <q-input v-model="descripcion" label="Descripción" required />
+              <q-input
+                v-model.trim="descripcion"
+                label="Descripción"
+                required
+              />
               <q-input
                 v-model="fecha_ingreso"
                 type="date"
@@ -151,13 +165,15 @@
                 label="Fecha Último Mantenimiento"
                 required
               />
-              <q-btn
-                label="Cancelar"
-                color="negative"
-                @click="cancelarAgregarMaquina"
-                class="q-mr-sm"
-              />
-              <q-btn type="submit" label="Guardar" color="primary" />
+              <div style="margin-top: 15px">
+                <q-btn
+                  label="Cancelar"
+                  color="negative"
+                  @click="cancelarAgregarMaquina"
+                  class="q-mr-sm"
+                />
+                <q-btn type="submit" label="Guardar" color="primary" />
+              </div>
             </q-form>
           </q-card-section>
         </q-card>
@@ -205,11 +221,12 @@ const columns = ref([
     field: "fecha_ingreso",
     format: (val) => {
       const fecha_ingreso = new Date(val);
-      const opcionesFecha = { day: '2-digit', month: '2-digit', year: 'numeric' };
-      const opcionesHora = { hour: '2-digit', minute: '2-digit' };
-      const fechaFormateada = fecha_ingreso.toLocaleDateString('es-ES', opcionesFecha);
-      const horaFormateada = fecha_ingreso.toLocaleTimeString('es-ES', opcionesHora);
-      return `${fechaFormateada} ${horaFormateada}`;
+      const opcionesFecha = {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      };
+      return fecha_ingreso.toLocaleDateString("es-ES", opcionesFecha);
     },
   },
   {
@@ -219,11 +236,15 @@ const columns = ref([
     field: "fecha_ultimo_mantenimiento",
     format: (val) => {
       const fecha_ultimo_mantenimiento = new Date(val);
-      const opcionesFecha = { day: '2-digit', month: '2-digit', year: 'numeric' };
-      const opcionesHora = { hour: '2-digit', minute: '2-digit' };
-      const fechaFormateada = fecha_ultimo_mantenimiento.toLocaleDateString('es-ES', opcionesFecha);
-      const horaFormateada = fecha_ultimo_mantenimiento.toLocaleTimeString('es-ES', opcionesHora);
-      return `${fechaFormateada} ${horaFormateada}`;
+      const opcionesFecha = {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      };
+      return fecha_ultimo_mantenimiento.toLocaleDateString(
+        "es-ES",
+        opcionesFecha
+      );
     },
   },
   { name: "estado", label: "Estado", align: "center", field: "estado" },
@@ -290,13 +311,16 @@ async function agregarOEditarMaquina() {
       fecha_ingreso: fecha_ingreso.value,
       fecha_ultimo_mantenimiento: fecha_ultimo_mantenimiento.value,
     };
+    let result;
     if (maquinaId.value) {
-      await useMaquinas.putMaquina(maquinaId.value, data);
+      result = await useMaquinas.putMaquina(maquinaId.value, data);
     } else {
-      await useMaquinas.postMaquina(data);
+      result = await useMaquinas.postMaquina(data);
     }
-    listarMaquinas();
-    showForm.value = false;
+    if (result.success) {
+      listarMaquinas();
+      showForm.value = false;
+    }
   } catch (error) {
     console.error("Error al agregar o editar máquina:", error);
     if (error.response && error.response.data) {
@@ -365,7 +389,7 @@ async function obtenerMaquinaPorID(MaqId) {
   }
 }
 
-listarMaquinas()
+listarMaquinas();
 obtenerSedes();
 
 watch(showForm, (newValue) => {

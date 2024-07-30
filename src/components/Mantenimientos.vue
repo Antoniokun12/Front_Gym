@@ -127,6 +127,16 @@
         <q-card>
           <q-card-section>
             <q-form @submit.prevent="agregarOEditarMantenimiento">
+              <h1
+                style="
+                  font-size: 30px;
+                  text-align: center;
+                  margin: 0;
+                  line-height: 50px;
+                "
+              >
+                Mantenimiento
+              </h1>
               <q-select
                 v-model="id_maquina"
                 label="Código Máquina"
@@ -144,30 +154,32 @@
                 required
               />
               <q-input
-                v-model="descripcion"
+                v-model.trim="descripcion"
                 type="text"
                 label="Descripción"
                 required
               />
               <q-input
-                v-model="responsable"
+                v-model.trim="responsable"
                 type="text"
                 label="Responsable"
                 required
               />
               <q-input
-                v-model="precio_mantenimiento"
+                v-model.trim="precio_mantenimiento"
                 type="number"
                 label="Precio de Mantenimiento"
                 required
               />
-              <q-btn
-                label="Cancelar"
-                color="negative"
-                @click="cancelarAgregarMantenimiento"
-                class="q-mr-sm"
-              />
-              <q-btn type="submit" label="Guardar" color="primary" />
+              <div style="margin-top: 15px">
+                <q-btn
+                  label="Cancelar"
+                  color="negative"
+                  @click="cancelarAgregarMantenimiento"
+                  class="q-mr-sm"
+                />
+                <q-btn type="submit" label="Guardar" color="primary" />
+              </div>
             </q-form>
           </q-card-section>
         </q-card>
@@ -180,7 +192,7 @@
 </template>
 
 <script setup>
-import { ref, watch } from "vue";
+import { ref, computed, watch } from "vue";
 import { useMantenimentosStore } from "../stores/mantenimientos.js";
 import { useMaquinaStore } from "../stores/maquinas.js";
 
@@ -192,12 +204,12 @@ const id_maquina = ref("");
 const fecha_mantenimiento = ref("");
 const descripcion = ref("");
 const responsable = ref("");
-const precio_mantenimiento = ref(0);
+const precio_mantenimiento = ref("");
 const mantenimientoId = ref(null);
 const selectedManId = ref("");
 
 const formatNumber = (number) => {
-  return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 };
 
 const maquinaOptions = ref([]);
@@ -216,11 +228,12 @@ const columns = ref([
     field: "fecha_mantenimiento",
     format: (val) => {
       const fecha_mantenimiento = new Date(val);
-      const opcionesFecha = { day: '2-digit', month: '2-digit', year: 'numeric' };
-      const opcionesHora = { hour: '2-digit', minute: '2-digit' };
-      const fechaFormateada = fecha_mantenimiento.toLocaleDateString('es-ES', opcionesFecha);
-      const horaFormateada = fecha_mantenimiento.toLocaleTimeString('es-ES', opcionesHora);
-      return `${fechaFormateada} ${horaFormateada}`;
+      const opcionesFecha = {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      };
+      return fecha_mantenimiento.toLocaleDateString("es-ES", opcionesFecha);
     },
   },
   {
@@ -239,11 +252,23 @@ const columns = ref([
     name: "precio_mantenimiento",
     label: "Precio de Mantenimiento",
     align: "center",
-     field: (row)=>formatNumber(row.precio_mantenimiento),
+    field: (row) => formatNumber(row.precio_mantenimiento),
   },
   { name: "estado", label: "Estado", align: "center", field: "estado" },
   { name: "opciones", label: "Opciones", align: "center" },
 ]);
+
+const enrichedRows = computed(() => {
+  return rows.value.map((mantenimiento) => {
+    const maquina = maquinaOptions.value.find(
+      (m) => m.value === mantenimiento.id_maquina
+    );
+    return {
+      ...mantenimiento,
+      id_maquina: maquina ? maquina : { descripcion: "Desconocido" },
+    };
+  });
+});
 
 async function listarMantenimientos() {
   try {
@@ -284,13 +309,20 @@ async function agregarOEditarMantenimiento() {
       precio_mantenimiento: precio_mantenimiento.value,
     };
 
+    let result;
+
     if (mantenimientoId.value) {
-      await useMantenimientos.putMantenimientos(mantenimientoId.value, data);
+      result = await useMantenimientos.putMantenimientos(
+        mantenimientoId.value,
+        data
+      );
     } else {
-      await useMantenimientos.postMantenimientos(data);
+      result = await useMantenimientos.postMantenimientos(data);
     }
-    listarMantenimientos();
-    showForm.value = false;
+    if (result.success) {
+      listarMantenimientos();
+      showForm.value = false;
+    }
   } catch (error) {
     console.error("Error al agregar o editar mantenimiento:", error);
     if (error.response && error.response.data) {
@@ -304,7 +336,8 @@ function cancelarAgregarMantenimiento() {
 }
 
 function editarMantenimiento(mantenimiento) {
-  id_maquina.value = mantenimiento.id_maquina.descripcion;
+  id_maquina.value = mantenimiento.id_maquina._id;
+  // id_maquina.value = mantenimiento.id_maquina.descripcion;
   fecha_mantenimiento.value = mantenimiento.fecha_mantenimiento.split("T")[0];
   descripcion.value = mantenimiento.descripcion;
   responsable.value = mantenimiento.responsable;
@@ -358,7 +391,7 @@ async function obtenerManPorID(Id) {
   }
 }
 
-listarMantenimientos()
+listarMantenimientos();
 obtenerMaquinas();
 
 watch(showForm, (newValue) => {

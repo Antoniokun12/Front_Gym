@@ -12,10 +12,17 @@
         <q-input
           filled
           class="input"
-          type="password"
+          :type="isPwd ? 'password' : 'text'"
           v-model="password"
           label="Ingrese su contraseña"
-        />
+          ><template v-slot:append>
+            <q-icon
+              :name="isPwd ? 'visibility_off' : 'visibility'"
+              class="cursor-pointer"
+              @click="isPwd = !isPwd"
+            />
+          </template>
+        </q-input>
         <div class="button-container">
           <q-btn label="Iniciar sesión" type="submit" color="primary" />
         </div>
@@ -47,6 +54,8 @@ const errors = ref({
   email: "",
   password: "",
 });
+
+const isPwd = ref(true);
 
 function validarCorreo(email) {
   const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -91,7 +100,7 @@ async function loginUsuario() {
       onReset();
     } else {
       mostrarNotificacion("Correo electrónico o contraseña incorrectos.");
-      onReset();
+      // onReset();
     }
   } catch (error) {
     console.error(error);

@@ -37,6 +37,21 @@
         style="margin-left: 16px; max-width: 200px"
         @update:model-value="obtenerVentaPorID"
       />
+      <div class="fes">
+        <q-input
+          v-model="fechaFiltro"
+          type="date"
+          label="Filtrar por Fecha"
+          class="q-mb-md"
+          style="max-width: 200px; margin-left: 16px"
+        />
+        <q-btn
+          label="Filtrar"
+          color="primary"
+          @click="filtrarPorFecha"
+          class="fes"
+        />
+      </div>
     </div>
     <div class="q-pa-md">
       <q-card>
@@ -127,6 +142,16 @@
         <q-card>
           <q-card-section>
             <q-form @submit.prevent="agregarOEditarVenta">
+              <h1
+                style="
+                  font-size: 30px;
+                  text-align: center;
+                  margin: 0;
+                  line-height: 50px;
+                "
+              >
+                Venta
+              </h1>
               <q-select
                 v-model="codigo_producto"
                 label="Código Producto"
@@ -138,18 +163,20 @@
                 required
               />
               <q-input
-                v-model="cantidad"
+                v-model.trim="cantidad"
                 type="number"
                 label="Cantidad"
                 required
               />
-              <q-btn
-                label="Cancelar"
-                color="negative"
-                @click="cancelarAgregarVenta"
-                class="q-mr-sm"
-              />
-              <q-btn type="submit" label="Guardar" color="primary" />
+              <div style="margin-top: 15px">
+                <q-btn
+                  label="Cancelar"
+                  color="negative"
+                  @click="cancelarAgregarVenta"
+                  class="q-mr-sm"
+                />
+                <q-btn type="submit" label="Guardar" color="primary" />
+              </div>
             </q-form>
           </q-card-section>
         </q-card>
@@ -170,23 +197,23 @@ const useVentas = useVentaStore();
 const useInventario = useInventarioStore();
 const showForm = ref(false);
 const codigo_producto = ref("");
-const cantidad = ref(0);
+const cantidad = ref("");
 const ventaId = ref(null);
 const selectedVentaId = ref("");
 const ventaOptions = ref([]);
 const productos = ref([]);
 const productoMap = ref({});
 const valor_unitario = ref("");
+const fechaFiltro = ref("");
 
 const formatFecha = (fechaString) => {
   const fecha = new Date(fechaString);
-  const opcionesFecha = { day: '2-digit', month: '2-digit', year: 'numeric' };
-  const opcionesHora = { hour: '2-digit', minute: '2-digit' };
-  const fechaFormateada = fecha.toLocaleDateString('es-ES', opcionesFecha);
-  const horaFormateada = fecha.toLocaleTimeString('es-ES', opcionesHora);
+  const opcionesFecha = { day: "2-digit", month: "2-digit", year: "numeric" };
+  const opcionesHora = { hour: "2-digit", minute: "2-digit" };
+  const fechaFormateada = fecha.toLocaleDateString("es-ES", opcionesFecha);
+  const horaFormateada = fecha.toLocaleTimeString("es-ES", opcionesHora);
   return `${fechaFormateada} ${horaFormateada}`;
 };
-
 
 const formatNumber = (number) => {
   return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
@@ -270,9 +297,24 @@ async function listarVentasInactivos() {
   }
 }
 
+async function filtrarPorFecha() {
+    try {
+        console.log('Fecha de filtro:', fechaFiltro.value); 
+        const r = await useVentas.getVentasPorFecha(fechaFiltro.value);
+        console.log('Respuesta de API:', r); 
+        rows.value = r.ventas || [];
+    } catch (error) {
+        console.error('Error al filtrar por fecha:', error);
+        rows.value = [];
+    }
+}
+
+
 async function agregarOEditarVenta() {
   try {
-    const producto = productoOptions.value.find(prod => prod.value === codigo_producto.value);
+    const producto = productoOptions.value.find(
+      (prod) => prod.value === codigo_producto.value
+    );
     const valor_unitario = producto ? producto.valorUnitario : 0;
     const total = valor_unitario * cantidad.value;
 
@@ -282,14 +324,17 @@ async function agregarOEditarVenta() {
       cantidad: cantidad.value,
       total: total,
     };
+    let result;
 
     if (ventaId.value) {
-      await useVentas.putVentas(ventaId.value, data);
+      result = await useVentas.putVentas(ventaId.value, data);
     } else {
-      await useVentas.postVentas(data);
+      result = await useVentas.postVentas(data);
     }
-    listarVentas();
-    showForm.value = false;
+    if (result.success) {
+      listarVentas();
+      showForm.value = false;
+    }
   } catch (error) {
     console.error("Error al agregar o editar venta:", error);
     if (error.response && error.response.data) {
@@ -297,7 +342,6 @@ async function agregarOEditarVenta() {
     }
   }
 }
-
 
 function cancelarAgregarVenta() {
   showForm.value = false;
@@ -307,7 +351,9 @@ function editarVenta(venta) {
   codigo_producto.value = venta.codigo_producto;
   cantidad.value = venta.cantidad;
   // Añadir actualización de valor_unitario
-  const producto = productoOptions.value.find(prod => prod.value === venta.codigo_producto);
+  const producto = productoOptions.value.find(
+    (prod) => prod.value === venta.codigo_producto
+  );
   if (producto) {
     valor_unitario.value = producto.valorUnitario;
   } else {
@@ -316,7 +362,6 @@ function editarVenta(venta) {
   ventaId.value = venta._id;
   showForm.value = true;
 }
-
 
 async function activarVenta(venta) {
   try {
@@ -338,9 +383,11 @@ async function desactivarVenta(venta) {
 
 async function obtenerProductos() {
   try {
-    const res = await useInventario.getInventario();
-    productos.value = Array.isArray(res.inventarios) ? res.inventarios : [];
-    
+    const res = await useInventario.getInventarioActivos();
+    productos.value = Array.isArray(res.inventariosActivos)
+      ? res.inventariosActivos
+      : [];
+
     productoOptions.value = productos.value.map((producto) => {
       return {
         label: producto.codigo + " - " + producto.descripcion,
@@ -365,7 +412,8 @@ async function obtenerVentas() {
   try {
     const res = await useVentas.getVentas();
     ventaOptions.value = res.venta.map((venta) => {
-      const descripcionProducto = productoMap.value[venta.codigo_producto] || "Descripción no disponible";
+      const descripcionProducto =
+        productoMap.value[venta.codigo_producto] || "Descripción no disponible";
       const fechaFormateada = formatFecha(venta.fecha);
       return {
         label: `${descripcionProducto} - ${fechaFormateada} - ${venta.codigo_producto}`,
@@ -377,7 +425,6 @@ async function obtenerVentas() {
   }
 }
 
-
 async function obtenerVentaPorID(id) {
   try {
     const venta = await useVentas.getMantenimientoByVenta(id);
@@ -387,7 +434,6 @@ async function obtenerVentaPorID(id) {
     rows.value = [];
   }
 }
-
 
 watch(selectedVentaId, async (newValue) => {
   if (newValue) {
@@ -439,5 +485,9 @@ watch(showForm, (newValue) => {
   justify-content: center;
   align-items: center;
   z-index: 9999;
+}
+
+.fes {
+  width: 200px;
 }
 </style>

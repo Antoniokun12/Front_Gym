@@ -100,11 +100,16 @@ export const useMantenimentosStore = defineStore("mantenimientos", () => {
                 color: "positive",
                 position: "top",
             });
-            return req.data;
+            return { success: true };
 
         } catch (error) {
+            const errorMessage = error.response?.data?.errors?.[0]?.msg || "Error al registrar el mantenimiento";
+            Notify.create({
+                type: "negative",
+                message: errorMessage,
+            });
             console.log(error);
-            return error
+            return { success: false };
         } finally {
             loading.value = false;
         }
@@ -123,11 +128,16 @@ export const useMantenimentosStore = defineStore("mantenimientos", () => {
                 color: "positive",
                 position: "top",
             });
-            return req.data;
+            return { success: true };
 
         } catch (error) {
+            const errorMessage = error.response?.data?.errors?.[0]?.msg || "Error al registrar el mantenimiento";
+            Notify.create({
+                type: "negative",
+                message: errorMessage,
+            });
             console.log(error);
-            return error
+            return { success: false };
         } finally {
             loading.value = false;
         }

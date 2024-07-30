@@ -8,7 +8,12 @@
         @click="showForm = true"
         class="q-my-md"
       />
-      <q-btn-dropdown color="primary" icon="visibility" label="Filtrar" style="margin-left: 16px;">
+      <q-btn-dropdown
+        color="primary"
+        icon="visibility"
+        label="Filtrar"
+        style="margin-left: 16px"
+      >
         <q-list>
           <q-item clickable v-ripple @click="listarSedes">
             <q-item-section>Listar Todos</q-item-section>
@@ -29,7 +34,7 @@
         map-options
         option-value="value"
         option-label="label"
-        style="margin-left: 16px; max-width: 200px;"
+        style="margin-left: 16px; max-width: 200px"
         @update:model-value="obtenerSedePorID"
       />
     </div>
@@ -54,7 +59,7 @@
                   icon="edit"
                   @click="editarSede(props.row)"
                 >
-                <q-tooltip
+                  <q-tooltip
                     class="bg-indigo rounded-borders row flex-center"
                     :offset="[10, 10]"
                     style="width: 120px; height: 40px; font-size: 15px"
@@ -70,7 +75,7 @@
                   @click="activarSede(props.row)"
                   v-if="props.row.estado === 0"
                 >
-                <q-tooltip
+                  <q-tooltip
                     class="bg-indigo rounded-borders row flex-center"
                     :offset="[10, 10]"
                     style="width: 120px; height: 40px; font-size: 15px"
@@ -86,7 +91,7 @@
                   @click="desactivarSede(props.row)"
                   v-if="props.row.estado === 1"
                 >
-                <q-tooltip
+                  <q-tooltip
                     class="bg-indigo rounded-borders row flex-center"
                     :offset="[10, 10]"
                     style="width: 120px; height: 40px; font-size: 15px"
@@ -98,17 +103,18 @@
             </template>
             <template v-slot:body-cell-estado="props">
               <q-td :props="props">
-                <q-chip
-                  :color="props.row.estado === 1 ? 'green' : 'red'"
-                  dark
-                >
-                  {{ props.row.estado === 1 ? 'Activo' : 'Inactivo' }}
+                <q-chip :color="props.row.estado === 1 ? 'green' : 'red'" dark>
+                  {{ props.row.estado === 1 ? "Activo" : "Inactivo" }}
                 </q-chip>
               </q-td>
             </template>
             <template v-slot:no-data>
               <div class="q-pa-md text-center">
-                <q-icon name="sentiment_dissatisfied" size="lg" class="q-mr-sm" />
+                <q-icon
+                  name="sentiment_dissatisfied"
+                  size="lg"
+                  class="q-mr-sm"
+                />
                 <div class="text-h6">No hay sedes disponibles</div>
               </div>
             </template>
@@ -121,24 +127,36 @@
         <q-card>
           <q-card-section>
             <q-form>
-              <q-input v-model="nombre" label="Nombre" />
-              <q-input v-model="direccion" label="Dirección" />
-              <q-input v-model="codigo" label="Código" />
-              <q-input v-model="horario" label="Horario" />
-              <q-input v-model="ciudad" label="Ciudad" />
-              <q-input v-model="telefono" label="Teléfono" />
-              <q-btn
-                label="Cancelar"
-                color="negative"
-                @click="cancelarAgregarSede"
-                class="q-mr-sm"
-              />
-              <q-btn
-                type="submit"
-                label="Guardar"
-                color="primary"
-                @click="agregarOEditarSede"
-              />
+              <h1
+                style="
+                  font-size: 30px;
+                  text-align: center;
+                  margin: 0;
+                  line-height: 50px;
+                "
+              >
+                Sede
+              </h1>
+              <q-input v-model.trim="nombre" label="Nombre" required />
+              <q-input v-model.trim="direccion" label="Dirección" required />
+              <q-input v-model.trim="codigo" label="Código" required />
+              <q-input v-model.trim="horario" label="Horario" required />
+              <q-input v-model.trim="ciudad" label="Ciudad" required />
+              <q-input v-model.trim="telefono" label="Teléfono" required />
+              <div style="margin-top: 15px;">
+                <q-btn
+                  label="Cancelar"
+                  color="negative"
+                  @click="cancelarAgregarSede"
+                  class="q-mr-sm"
+                />
+                <q-btn
+                  type="submit"
+                  label="Guardar"
+                  color="primary"
+                  @click="agregarOEditarSede"
+                />
+              </div>
             </q-form>
           </q-card-section>
         </q-card>
@@ -151,31 +169,36 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
-import { useSedeStore } from '../stores/sedes.js';
+import { ref, watch } from "vue";
+import { useSedeStore } from "../stores/sedes.js";
 
 const useSedes = useSedeStore();
 const showForm = ref(false);
-const nombre = ref('');
-const direccion = ref('');
-const codigo = ref('');
-const horario = ref('');
-const ciudad = ref('');
-const telefono = ref('');
+const nombre = ref("");
+const direccion = ref("");
+const codigo = ref("");
+const horario = ref("");
+const ciudad = ref("");
+const telefono = ref("");
 const sedeId = ref(null); // Para almacenar el ID de la sede en edición
 const selectedSedeId = ref("");
 const SedeOptions = ref([]);
 
 const rows = ref([]);
 const columns = ref([
-  { name: 'nombre', label: 'Nombre', align: 'center', field: 'nombre' },
-  { name: 'direccion', label: 'Dirección', align: 'center', field: 'direccion' },
-  { name: 'codigo', label: 'Código', align: 'center', field: 'codigo' },
-  { name: 'horario', label: 'Horario', align: 'center', field: 'horario' },
-  { name: 'ciudad', label: 'Ciudad', align: 'center', field: 'ciudad' },
-  { name: 'telefono', label: 'Teléfono', align: 'center', field: 'telefono' },
-  { name: 'estado', label: 'Estado', align: 'center', field: 'estado' },
-  { name: 'opciones', label: 'Opciones', align: 'center', field: 'opciones' },
+  { name: "nombre", label: "Nombre", align: "center", field: "nombre" },
+  {
+    name: "direccion",
+    label: "Dirección",
+    align: "center",
+    field: "direccion",
+  },
+  { name: "codigo", label: "Código", align: "center", field: "codigo" },
+  { name: "horario", label: "Horario", align: "center", field: "horario" },
+  { name: "ciudad", label: "Ciudad", align: "center", field: "ciudad" },
+  { name: "telefono", label: "Teléfono", align: "center", field: "telefono" },
+  { name: "estado", label: "Estado", align: "center", field: "estado" },
+  { name: "opciones", label: "Opciones", align: "center", field: "opciones" },
 ]);
 
 async function listarSedes() {
@@ -222,13 +245,18 @@ async function agregarOEditarSede() {
       ciudad: ciudad.value,
       telefono: telefono.value,
     };
+    let result;
     if (sedeId.value) {
-      await useSedes.putSedes(sedeId.value, data);
+      result = await useSedes.putSedes(sedeId.value, data);
     } else {
-      await useSedes.postSedes(data);
+      result = await useSedes.postSedes(data);
     }
-    listarSedes(); // Actualiza la lista de sedes después de agregar o editar
-    showForm.value = false;
+    console.log("Operation result:", result);
+
+    if (result.success) {
+      listarSedes();
+      showForm.value = false;
+    }
   } catch (error) {
     console.error(error);
   }
@@ -253,7 +281,7 @@ function editarSede(sede) {
 async function activarSede(sede) {
   try {
     await useSedes.toggleEstadoSedes(sede._id, true);
-    listarSedes(); 
+    listarSedes();
   } catch (error) {
     console.error(error);
   }
@@ -262,7 +290,7 @@ async function activarSede(sede) {
 async function desactivarSede(sede) {
   try {
     await useSedes.toggleEstadoSedes(sede._id, false);
-    listarSedes(); 
+    listarSedes();
   } catch (error) {
     console.error(error);
   }
@@ -271,7 +299,7 @@ async function desactivarSede(sede) {
 async function obtenerSedePorID(SedeId) {
   try {
     const sede = await useSedes.getSedeByID(SedeId);
-    rows.value = [sede]; 
+    rows.value = [sede];
   } catch (error) {
     console.error(error);
   }
@@ -279,18 +307,17 @@ async function obtenerSedePorID(SedeId) {
 
 watch(showForm, (newValue) => {
   if (!newValue) {
-    nombre.value = '';
-    direccion.value = '';
-    codigo.value = '';
-    horario.value = '';
-    ciudad.value = '';
-    telefono.value = '';
+    nombre.value = "";
+    direccion.value = "";
+    codigo.value = "";
+    horario.value = "";
+    ciudad.value = "";
+    telefono.value = "";
     sedeId.value = null;
   }
 });
 
 listarSedes();
-
 </script>
 
 <style>
@@ -307,11 +334,11 @@ listarSedes();
 }
 
 .q-icon {
-  font-size: 3rem; 
+  font-size: 3rem;
 }
 
 .text-h6 {
-  font-size: 1.5rem; 
+  font-size: 1.5rem;
 }
 
 .overlay {

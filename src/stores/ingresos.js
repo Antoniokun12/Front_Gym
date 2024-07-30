@@ -87,6 +87,27 @@ export const useIngresoStore = defineStore("ingreso", () => {
         }
     }
 
+    let getIngresosPorFecha = async (fecha) => {
+        loading.value = true;
+        try {
+            let res = await axios.get(`/api/ingresos/fecha/${fecha}`, {
+                headers: {
+                    "x-token": useUsuario.token,
+                },
+                params: { busqueda: fecha }  // Pasar la fecha como parámetro de consulta
+            });
+            ingresos.value = res.data.ingresos || [];
+            console.log(res);
+            return res.data;
+        } catch (error) {
+            console.log(error);
+            return error;
+        } finally {
+            loading.value = false;
+        }
+    }
+    
+
 
     let postIngresos = async (ingreso) => {
         loading.value = true;
@@ -160,7 +181,7 @@ export const useIngresoStore = defineStore("ingreso", () => {
     }
 
     return {
-        getIngresos, getIngresosActivos, getIngresosInactivos, getIngresosByID, postIngresos, putIngresos, toggleEstadoIngresos, loading
+        getIngresos, getIngresosActivos, getIngresosInactivos, getIngresosByID, getIngresosPorFecha, postIngresos, putIngresos, toggleEstadoIngresos, loading
     }
 },
 {

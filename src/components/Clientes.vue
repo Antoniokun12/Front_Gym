@@ -38,7 +38,7 @@
         @update:model-value="obtenerClientePorID"
       />
     </div>
-    <div class="q-pa-md">
+    <div v-if="!mostrarSeguimientos" class="q-pa-md">
       <q-card>
         <q-card-section>
           <q-table
@@ -152,7 +152,7 @@
         </q-card-section>
       </q-card>
     </div>
-    <div v-if="clienteSeleccionado" class="q-pa-md seguimiento-table">
+    <div v-if="mostrarSeguimientos" class="q-pa-md seguimiento-table">
       <q-card>
         <q-card-section>
           <div class="q-pa-md text-center cliente-header">
@@ -272,25 +272,41 @@
         <q-card>
           <q-card-section>
             <q-form @submit="agregarOEditarCliente">
+              <h1
+                style="
+                  font-size: 30px;
+                  text-align: center;
+                  margin: 0;
+                  line-height: 50px;
+                "
+              >
+                Cliente
+              </h1>
               <q-input
-                v-model="cliente.nombre"
+                v-model.trim="cliente.nombre"
                 label="Nombre Cliente"
                 required
               />
               <q-input
-                v-model="cliente.fecha_nacimiento"
+                v-model.trim="cliente.fecha_nacimiento"
                 label="Fecha de Nacimiento"
                 type="date"
                 required
               />
-              <q-input v-model="cliente.foto" label="Url de la foto" required />
-              <q-input v-model="cliente.documento" label="Documento" required />
-              <q-input v-model="cliente.direccion" label="Dirección" required />
-              <q-input v-model="cliente.telefono" label="Teléfono" required />
-              <q-input v-model="cliente.objetivo" label="Objetivo" required />
+              <q-input v-model.trim="cliente.foto" label="Url de la foto" required />
+              <q-input v-model.trim="cliente.documento" label="Documento" required />
+              <q-input v-model.trim="cliente.direccion" label="Dirección" required />
+              <q-input v-model.trim="cliente.telefono" label="Teléfono" required />
               <q-input
-                v-model="cliente.observaciones_limitaciones"
+                v-model.trim="cliente.objetivo"
+                label="Objetivo"
+                type="textarea"
+                required
+              />
+              <q-input
+                v-model.trim="cliente.observaciones_limitaciones"
                 label="Observaciones/Limitaciones"
+                type="textarea"
                 required
               />
               <q-select
@@ -303,13 +319,15 @@
                 option-label="label"
                 required
               />
-              <q-btn
-                label="Cancelar"
-                color="negative"
-                @click="cancelarAgregarCliente"
-                class="q-mr-sm"
-              />
-              <q-btn type="submit" label="Guardar" color="primary" />
+              <div style="margin-top: 15px">
+                <q-btn
+                  label="Cancelar"
+                  color="negative"
+                  @click="cancelarAgregarCliente"
+                  class="q-mr-sm"
+                />
+                <q-btn type="submit" label="Guardar" color="primary" />
+              </div>
             </q-form>
           </q-card-section>
         </q-card>
@@ -319,6 +337,16 @@
         <q-card>
           <q-card-section>
             <q-form @submit="agregarSeguimiento">
+              <h1
+                style="
+                  font-size: 30px;
+                  text-align: center;
+                  margin: 0;
+                  line-height: 50px;
+                "
+              >
+                Seguimiento
+              </h1>
               <q-input
                 v-model="seguimiento.fecha"
                 label="Fecha"
@@ -336,13 +364,6 @@
                 label="Altura"
                 type="number"
                 required
-              />
-              <q-input
-                v-model="seguimiento.imc"
-                label="IMC"
-                type="number"
-                required
-                readonly
               />
               <q-input
                 v-model="seguimiento.medida_brazo"
@@ -394,6 +415,7 @@ const useClientes = useClienteStore();
 const usePlanes = usePlanStore();
 const showForm = ref(false);
 const showSeguimientoForm = ref(false);
+const mostrarSeguimientos = ref(false);
 
 const planesOptions = ref([]);
 const selectedClieId = ref("");
@@ -453,16 +475,7 @@ const columns = ref([
         month: "2-digit",
         year: "numeric",
       };
-      const opcionesHora = { hour: "2-digit", minute: "2-digit" };
-      const fechaFormateada = fecha_nacimiento.toLocaleDateString(
-        "es-ES",
-        opcionesFecha
-      );
-      const horaFormateada = fecha_nacimiento.toLocaleTimeString(
-        "es-ES",
-        opcionesHora
-      );
-      return `${fechaFormateada} ${horaFormateada}`;
+      return fecha_nacimiento.toLocaleDateString("es-ES", opcionesFecha);
     },
   },
   { name: "edad", label: "Edad", align: "center", field: "edad" },
@@ -478,16 +491,7 @@ const columns = ref([
         month: "2-digit",
         year: "numeric",
       };
-      const opcionesHora = { hour: "2-digit", minute: "2-digit" };
-      const fechaFormateada = fecha_ingreso.toLocaleDateString(
-        "es-ES",
-        opcionesFecha
-      );
-      const horaFormateada = fecha_ingreso.toLocaleTimeString(
-        "es-ES",
-        opcionesHora
-      );
-      return `${fechaFormateada} ${horaFormateada}`;
+      return fecha_ingreso.toLocaleDateString("es-ES", opcionesFecha);
     },
   },
   {
@@ -502,16 +506,12 @@ const columns = ref([
         month: "2-digit",
         year: "numeric",
       };
-      const opcionesHora = { hour: "2-digit", minute: "2-digit" };
+      // Formatear solo la fecha, sin la hora
       const fechaFormateada = fecha_vencimiento.toLocaleDateString(
         "es-ES",
         opcionesFecha
       );
-      const horaFormateada = fecha_vencimiento.toLocaleTimeString(
-        "es-ES",
-        opcionesHora
-      );
-      return `${fechaFormateada} ${horaFormateada}`;
+      return fechaFormateada;
     },
   },
   {
@@ -663,13 +663,16 @@ async function listarClientesInactivos() {
 
 async function agregarOEditarCliente() {
   try {
+    let result;
     if (clienteId.value) {
-      await useClientes.putCliente(clienteId.value, cliente.value);
+      result = await useClientes.putCliente(clienteId.value, cliente.value);
     } else {
-      await useClientes.postCliente(cliente.value);
+      result = await useClientes.postCliente(cliente.value);
     }
-    listarClientes();
-    showForm.value = false;
+    if (result.success) {
+      listarClientes();
+      showForm.value = false;
+    }
   } catch (error) {
     if (error.response) {
       console.error("Error al agregar o editar cliente:", error.response.data);
@@ -751,11 +754,13 @@ function editarCliente(clienteData) {
 }
 
 function verSeguimientos(clienteData) {
+  mostrarSeguimientos.value = true;
   clienteSeleccionado.value = clienteData;
   console.log("Seguimientos del cliente:", clienteData.seguimiento);
 }
 
 const cerrarSeguimiento = () => {
+  mostrarSeguimientos.value = false;
   clienteSeleccionado.value = null;
 };
 
@@ -856,10 +861,20 @@ const guardarSeguimientoEditado = async () => {
       datosActualizados
     );
 
+    const index = clienteSeleccionado.value.seguimiento.findIndex(
+      (s) => s._id === seguimientoEditado.value._id
+    );
+    if (index !== -1) {
+      clienteSeleccionado.value.seguimiento[index] = {
+        ...clienteSeleccionado.value.seguimiento[index],
+        ...datosActualizados.updateSeguimiento,
+      };
+    }
+
     showEditarSeguimientoForm.value = false;
     seguimientoEditado.value = null;
 
-    listarClientes();
+    clienteSeleccionado.value = { ...clienteSeleccionado.value };
   } catch (error) {
     console.error("Error al guardar seguimiento editado:", error);
   }
@@ -890,7 +905,7 @@ watch(showForm, (newValue) => {
 listarClientes();
 </script>
 
-<style>
+<style scoped>
 .q-card-section {
   padding: 20px;
 }
